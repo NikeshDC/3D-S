@@ -7,12 +7,12 @@ import numpy
 screen_x = 800
 screen_y = 600
 
-#account for different dimensions of screen width and height to draw propotionately
+#account for different dimensions of screen width and height to draw proportionately
 screen_xy = min(screen_x, screen_y)
 
 def topixel(x,y):
     '''converts normalized value to actual pixel values'''
-    x = int((screen_x - x*screen_xy)/2)
+    x = int((screen_x + x*screen_xy)/2)
     y = int((screen_y - y*screen_xy)/2)
     return (x,y)
 
@@ -31,7 +31,7 @@ m1 = StandardModels().models['cube']
 campos = (15.0,15.0,10.0)
 lookatpos = [0.0,0.0,0.0]
 clippingplanes = (5.0,25.0)
-viewplane = 7.0
+viewplane = 5.0
 mainCamera = Camera(campos,lookatpos, clippingplanes, viewplane)
 
 #transforming model to viewing coordinates -------------------------------
@@ -89,14 +89,14 @@ while True:
         screen.fill(bgcolor)
 
         #drawing grid
-        pygame.draw.line(screen, grid.xaxis_color, topixel(grid.xaxis.start.x, grid.xaxis.start.y), topixel(grid.xaxis.end.x, grid.xaxis.end.y),2)
-        pygame.draw.line(screen, grid.zaxis_color, topixel(grid.zaxis.start.x, grid.zaxis.start.y), topixel(grid.zaxis.end.x, grid.zaxis.end.y),2)
+        pygame.draw.aaline(screen, grid.xaxis_color, topixel(grid.xaxis.start.x, grid.xaxis.start.y), topixel(grid.xaxis.end.x, grid.xaxis.end.y),2)
+        pygame.draw.aaline(screen, grid.zaxis_color, topixel(grid.zaxis.start.x, grid.zaxis.start.y), topixel(grid.zaxis.end.x, grid.zaxis.end.y),2)
         for edge in grid.edges:
-            pygame.draw.line(screen, grid.grid_color, topixel(edge.start.x, edge.start.y), topixel(edge.end.x, edge.end.y),1)
+            pygame.draw.aaline(screen, grid.grid_color, topixel(edge.start.x, edge.start.y), topixel(edge.end.x, edge.end.y),1)
             
         for surfaces in m1.surfaces:
             for edge in surfaces.edges:
-                pygame.draw.line(screen, line_color, topixel(edge.start.x, edge.start.y), topixel(edge.end.x, edge.end.y),2)
+                pygame.draw.aaline(screen, line_color, topixel(edge.start.x, edge.start.y), topixel(edge.end.x, edge.end.y),2)
 
         
                 
