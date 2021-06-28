@@ -4,13 +4,16 @@ from graphics_utility import *
 from D3_utility import *
 import numpy 
 
-screen_x = 600
+screen_x = 800
 screen_y = 600
+
+#account for different dimensions of screen width and height to draw propotionately
+screen_xy = min(screen_x, screen_y)
 
 def topixel(x,y):
     '''converts normalized value to actual pixel values'''
-    x = int((screen_x - x*screen_x)/2)
-    y = int((screen_y - y*screen_y)/2)
+    x = int((screen_x - x*screen_xy)/2)
+    y = int((screen_y - y*screen_xy)/2)
     return (x,y)
 
 pygame.init()
