@@ -59,6 +59,7 @@ class Surface:
         e3 = Edge(v3,v1)
         self.edges = [e1,e2,e3]
         self.a,self.b,self.c,self.d = Surface.getPlaneCoeffs(v1,v2,v3)
+        self.vertices = [v1,v2,v3]
 
     def addEdge(self,e):
         self.edges.append(e)
@@ -71,12 +72,17 @@ class Surface:
         newv.x, newv.y, newv.z = a*t + v.x, b*t + v.y, c*t + v.z
         if not(newv == v):
             print(f"vertex not lying in plane vertex:({v.x},{v.y},{v.z})  \nprojection:({newv.x},{newv.y},{newv.z})")
+            return
+        if v in self.vertices:
+            print("vertex already included in surface")
+            return
         
         vend = self.edges[-1].end
         vstart = self.edges[0].start
         self.edges.pop()  #removing last edge to make new edges connecting to the new vertex
         self.edges.append(Edge(vend, v))
         self.edges.append(Edge(v, vstart))
+        self.vertices.append(v)
 
 
 class Model:
