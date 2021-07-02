@@ -1,14 +1,20 @@
 import pygame
+from pygame import gfxdraw
 import sys
 from graphics_utility import *
 from D3_utility import *
-import numpy 
+from utility_2d import *
+import numpy
 
-screen_x = 800
-screen_y = 600
+
+#print(lineIntersects(((7,7),(5,5)),((5,0),(0,5))))
+
+
+screen_x = 1280
+screen_y = 720
 
 #account for different dimensions of screen width and height to draw proportionately
-screen_xy = min(screen_x, screen_y)
+screen_xy = min(screen_x,screen_y)
 
 def topixel(x,y):
     '''converts normalized value to actual pixel values'''
@@ -16,14 +22,23 @@ def topixel(x,y):
     y = int((screen_y - y*screen_xy)/2)
     return (x,y)
 
+def tonormal(x,y):
+    '''converts pixel value to normalized value'''
+    x = float((2*x - screen_x)/screen_xy)
+    y = float((-2*y + screen_y)/screen_xy)
+    print(x,y)
+    return (x,y)
+
 pygame.init()
 screen = pygame.display.set_mode((screen_x, screen_y))
 pygame.display.set_caption("3Ds")
 bgcolor = (99,99,99)
 line_color = (241,165,5)
-gridcolor = (212, 212, 212)
+gridcolor = (120, 120, 120)
 xaxiscolor = (28, 217, 44)
 zaxiscolor = (237, 15, 2)
+surfacecolor = (170,170,170)
+selected_color = (220,220,220)
 
 grid = Grid(1.0,10.0,gridcolor, xaxiscolor, zaxiscolor)
 m1 = StandardModels().models['cube']
@@ -76,7 +91,6 @@ grid.zaxis.end.x   = v[0][3] / v[2][3] * mainCamera.Zvp
 grid.zaxis.end.y   = v[1][3] / v[2][3] * mainCamera.Zvp
 #-------------------------------------------------------------transforming grid
 
-#winding_no = 0;
 
 while True:
     for event in pygame.event.get():
@@ -85,18 +99,42 @@ while True:
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_q:
             sys.exit()
         mousex, mousey = pygame.mouse.get_pos()
+        mousex, mousey = tonormal(mousex, mousey)
+        mouse_point = Vertex(mousex,mousey,0)
+
+##        si = 0
+##        for surface in m1.surfaces:
+##            if checkForPointInside(mouse_point, surface.edges):
+##                print("Inside",si)
+##            si += 1
+            
         
         screen.fill(bgcolor)
 
         #drawing grid
-        pygame.draw.aaline(screen, grid.xaxis_color, topixel(grid.xaxis.start.x, grid.xaxis.start.y), topixel(grid.xaxis.end.x, grid.xaxis.end.y),2)
-        pygame.draw.aaline(screen, grid.zaxis_color, topixel(grid.zaxis.start.x, grid.zaxis.start.y), topixel(grid.zaxis.end.x, grid.zaxis.end.y),2)
+        pygame.draw.aaline(screen, grid.xaxis_color, topixel(grid.xaxis.start.x, grid.xaxis.start.y), topixel(grid.xaxis.end.x, grid.xaxis.end.y))
+        pygame.draw.aaline(screen, grid.zaxis_color, topixel(grid.zaxis.start.x, grid.zaxis.start.y), topixel(grid.zaxis.end.x, grid.zaxis.end.y))
+##        gz_xs,gz_ys = topixel(grid.zaxis.start.x, grid.zaxis.start.y)
+##        gz_xe,gz_ye = topixel(grid.zaxis.end.x, grid.zaxis.end.y)
+##        pygame.gfxdraw.line(screen, gz_xs, gz_ys, gz_xe, gz_ye, grid.zaxis_color)
         for edge in grid.edges:
-            pygame.draw.aaline(screen, grid.grid_color, topixel(edge.start.x, edge.start.y), topixel(edge.end.x, edge.end.y),1)
-            
-        for surfaces in m1.surfaces:
-            for edge in surfaces.edges:
-                pygame.draw.aaline(screen, line_color, topixel(edge.start.x, edge.start.y), topixel(edge.end.x, edge.end.y),2)
+            #pygame.draw.line(screen, grid.grid_color, topixel(edge.start.x, edge.start.y), topixel(edge.end.x, edge.end.y),1)
+            pygame.draw.aaline(screen, grid.grid_color, topixel(edge.start.x, edge.start.y), topixel(edge.end.x, edge.end.y))
+
+        #drawing cube-model ->surface
+        for surface in m1.surfaces:
+            if checkForPointInside(mouse_point, surface.edges):
+                _surfacecolor = selected_color
+            else:
+                _surfacecolor = surfacecolor
+            surface_points = []
+            for v in surface.vertices:
+                surface_points.append(topixel(v.x,v.y))
+            pygame.draw.polygon(screen, _surfacecolor, surface_points)
+        #drawing cube-model ->edges
+        for surface in m1.surfaces:
+            for edge in surface.edges:
+                pygame.draw.aaline(screen, line_color, topixel(edge.start.x, edge.start.y), topixel(edge.end.x, edge.end.y))
 
         
                 
