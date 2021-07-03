@@ -9,6 +9,8 @@ import numpy
 
 #print(lineIntersects(((7,7),(5,5)),((5,0),(0,5))))
 
+##abc = True
+##xyz = True
 
 screen_x = 1280
 screen_y = 720
@@ -26,7 +28,6 @@ def tonormal(x,y):
     '''converts pixel value to normalized value'''
     x = float((2*x - screen_x)/screen_xy)
     y = float((-2*y + screen_y)/screen_xy)
-    print(x,y)
     return (x,y)
 
 pygame.init()
@@ -91,6 +92,7 @@ grid.zaxis.end.x   = v[0][3] / v[2][3] * mainCamera.Zvp
 grid.zaxis.end.y   = v[1][3] / v[2][3] * mainCamera.Zvp
 #-------------------------------------------------------------transforming grid
 
+_surfacecolor = surfacecolor
 
 while True:
     for event in pygame.event.get():
@@ -98,6 +100,9 @@ while True:
             sys.exit()
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_q:
             sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            abc = True
+            xyz = True
         mousex, mousey = pygame.mouse.get_pos()
         mousex, mousey = tonormal(mousex, mousey)
         mouse_point = Vertex(mousex,mousey,0)
@@ -123,7 +128,7 @@ while True:
 
         #drawing cube-model ->surface
         for surface in m1.surfaces:
-            if checkForPointInside(mouse_point, surface.edges):
+            if isInterior(mouse_point, surface.edges):
                 _surfacecolor = selected_color
             else:
                 _surfacecolor = surfacecolor
