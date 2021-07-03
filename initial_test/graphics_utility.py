@@ -61,9 +61,6 @@ class Surface:
         self.a,self.b,self.c,self.d = Surface.getPlaneCoeffs(v1,v2,v3)
         self.vertices = [v1,v2,v3]
 
-    def addEdge(self,e):
-        self.edges.append(e)
-
     def addVertex(self,v):
         #v = projection of v on plane made by first three vertices
         a,b,c,d = self.a, self.b, self.c, self.d
@@ -78,10 +75,10 @@ class Surface:
             return
         
         vend = self.edges[-1].end
-        vstart = self.edges[0].start
+        vstart = self.edges[-1].start
         self.edges.pop()  #removing last edge to make new edges connecting to the new vertex
-        self.edges.append(Edge(vend, v))
-        self.edges.append(Edge(v, vstart))
+        self.edges.append(Edge(vstart, v))
+        self.edges.append(Edge(v, vend))
         self.vertices.append(v)
 
 
@@ -93,11 +90,9 @@ class Model:
 
     def addSurface(self,s: Surface):
         self.surfaces.append(s)
-        for edge in s.edges:
-            if not edge.start in self.vertices:
-                self.vertices.append(edge.start)
-            elif not edge.end in self.vertices:
-                self.vertices.append(edge.end)
+        for vertex in s.vertices:
+            if not vertex in self.vertices:
+                self.vertices.append(vertex)
         
 
 
@@ -128,12 +123,13 @@ class StandardModels:
         s5.addVertex(v3)
         s6 = Surface(v1,v2,v7)
         s6.addVertex(v6)
-        cube.addSurface(s1)
         cube.addSurface(s2)
-        cube.addSurface(s3)
-        cube.addSurface(s4)
-        cube.addSurface(s5)
+        cube.addSurface(s1)
         cube.addSurface(s6)
+        cube.addSurface(s3)
+##        cube.addSurface(s4)
+##        cube.addSurface(s5)
+
         self.models['cube'] = cube
         ## ------------------ ##
 
