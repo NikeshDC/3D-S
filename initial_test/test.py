@@ -100,9 +100,9 @@ while True:
             sys.exit()
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_q:
             sys.exit()
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            abc = True
-            xyz = True
+        #elif event.type == pygame.MOUSEBUTTONDOWN:
+            #abc = True
+            #xyz = True
         mousex, mousey = pygame.mouse.get_pos()
         mousex, mousey = tonormal(mousex, mousey)
         mouse_point = Vertex(mousex,mousey,0)
