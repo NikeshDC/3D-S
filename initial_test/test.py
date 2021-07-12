@@ -63,10 +63,10 @@ cmdFont = pygame.font.Font('freesansbold.ttf', 20)
 # cmdText = cmdFont.render("hi", True, (0, 0, 0), keyC_color)
 
 # Command window for keyboard commands
-keyCommand = command(keyC_color,
-                     pygame.Rect(0, screen_yc - 40, screen_x, screen_yc - 40))
+keyCommand = CommandWindow(
+    keyC_color, pygame.Rect(0, screen_yc - 40, screen_x, screen_yc - 40))
 
-keyP = keyPress(keyCommand, cmdFont)
+keyP = Command(keyCommand, cmdFont)
 #transforming model to viewing coordinates -------------------------------
 for vertex in m1.vertices:
     v = numpy.array([[vertex.x], [vertex.y], [vertex.z], [1]])
@@ -109,13 +109,18 @@ grid.zaxis.end.y = v[1][3] / v[2][3] * mainCamera.Zvp
 _surfacecolor = surfacecolor
 
 while True:
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
-        # elif event.type == pygame.KEYDOWN and event.key == pygame.K_q:
-        #     sys.exit()
+
+        # KEYBOARD CONTROLS
         if event.type == pygame.KEYDOWN:
-            keyP.keyPressed(event.key)
+            # Application closes if Key 'q' is pressed
+            if event.key == pygame.K_q:
+                sys.exit()
+            keyP.processKey(event.key)
+
         #elif event.type == pygame.MOUSEBUTTONDOWN:
         #abc = True
         #xyz = True
@@ -163,10 +168,8 @@ while True:
                 pygame.draw.aaline(screen, line_color,
                                    topixel(edge.start.x, edge.start.y),
                                    topixel(edge.end.x, edge.end.y))
-
     # Command view box
-    pygame.draw.rect(screen, keyP.command.color, keyP.rect)
-
+    pygame.draw.rect(screen, keyP.commandWindow.color, keyP.rect)
     screen.blit(
         cmdFont.render("Current Command : " + keyP.getPressedKeysStr(), True,
                        keyFont_color, keyC_color), keyP.rect)
