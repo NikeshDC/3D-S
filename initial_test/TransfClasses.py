@@ -2,21 +2,46 @@ class checkKeys:
     def __init__(self) -> None:
         pass
 
+    @staticmethod
     def isDigit(x):
         if x >= 48 and x <= 57:
             return True
         return False
 
+    @staticmethod
     def isAlpha(x):
         if x >= 97 and x <= 122:
             return True
         return False
 
+    @staticmethod
     def areDigits(self, strList: list):
         for x in strList:
             if (not self.isDigit(x)):
                 return False
         return True
+
+
+import pygame
+
+
+class strManip:
+    def __init__(self) -> None:
+        pass
+
+    @staticmethod
+    def getNumbers(ipString: list, separator=",") -> list:
+        ans = []
+        temp = 0
+        for x in ipString:
+            if (checkKeys.isDigit(x)):
+                temp = temp * 10 + int(pygame.key.name(x))
+
+            elif (pygame.key.name(x) == separator):
+                ans.append(temp)
+                temp = 0
+        ans.append(temp)
+        return ans
 
 
 class Coord:
@@ -71,10 +96,22 @@ class rotateC:
         return self.__fixedPoint
 
 
+class TranslateC:
+    def __init__(self, translationValues: Coord()) -> None:
+        self.translVal = translationValues
+
+
 class TransfVars:
-    def __init__(self, rotateV=rotateC()) -> None:
+    def __init__(
+        self,
+        rotateV=rotateC(),
+        translateV=TranslateC(Coord()),
+        originV=Coord()
+    ) -> None:
+
         self.rotateC = rotateV
+        self.originCoord = originV
         # Classes not defined yet
-        self.translateC = []
+        self.translateC = translateV
         self.scaleC = []
         self.excrudeC = []

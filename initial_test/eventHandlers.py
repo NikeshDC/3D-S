@@ -17,6 +17,9 @@ class CommandWindow:
         return self.rect
 
 
+print
+
+
 class Command:
     def __init__(self, cmnd: CommandWindow, mFont: Font) -> None:
         self.pressedKeys = []
@@ -43,38 +46,53 @@ class Command:
             elif (pygame.key.name(instructString[1]) == 'a'):
                 transformationVals.rotateC.setDirection(False)
                 print("Rotate anticlockwise by", rotationAngle, " degree")
-            if (len(instructString) == 12
-                    and pygame.key.name(instructString[4]) == 'o'
-                    and checkKeys.isDigit(instructString[5])
-                    and checkKeys.isDigit(instructString[6])
-                    and checkKeys.isDigit(instructString[8])
-                    and checkKeys.isDigit(instructString[9])
-                    and checkKeys.isDigit(instructString[11])
-                    and checkKeys.isDigit(instructString[12])):
-                rx = int(pygame.key.name(instructString[5])) * 10 + int(
-                    pygame.key.name(instructString[6]))
-                ry = int(pygame.key.name(instructString[8])) * 10 + int(
-                    pygame.key.name(instructString[9]))
-                rz = int(pygame.key.name(instructString[11])) * 10 + int(
-                    pygame.key.name(instructString[12]))
-                transformationVals.rotateC.setFixedPoint(Coord(rx, ry, rz))
-                print("Origin changed to: (", rx, ",", ry, ",", rz, ")")
+            # if (len(instructString) == 12
+            #         and pygame.key.name(instructString[4]) == 'o'
+            #         and checkKeys.isDigit(instructString[5])
+            #         and checkKeys.isDigit(instructString[6])
+            #         and checkKeys.isDigit(instructString[8])
+            #         and checkKeys.isDigit(instructString[9])
+            #         and checkKeys.isDigit(instructString[11])
+            #         and checkKeys.isDigit(instructString[12])):
+            #     rx = int(pygame.key.name(instructString[5])) * 10 + int(
+            #         pygame.key.name(instructString[6]))
+            #     ry = int(pygame.key.name(instructString[8])) * 10 + int(
+            #         pygame.key.name(instructString[9]))
+            #     rz = int(pygame.key.name(instructString[11])) * 10 + int(
+            #         pygame.key.name(instructString[12]))
+            #     transformationVals.rotateC.setFixedPoint(Coord(rx, ry, rz))
+            #     print("Origin changed to: (", rx, ",", ry, ",", rz, ")")
 
         # --------------------------------------------TRANSLATION--------------------------------------------
         # TRANSLATION COMMAND FORMAT => T[]
-        elif (len(instructString) == 4
+        elif (len(instructString) >= 4
               and pygame.key.name(instructString[0]) == 't'):
-            print("translate")
+
+            transVals = strManip.getNumbers(instructString[1:])
+            transformationVals.translateC = TranslateC(
+                Coord(transVals[0], transVals[1], transVals[2]))
+            print("Translate about:", "(", transVals[0], ",", transVals[1],
+                  ",", transVals[2], ")")
         # --------------------------------------------SCALLING--------------------------------------------
         # SCALLING COMMAND FORMAT => T[]
-        elif (len(instructString) == 4
+        elif (len(instructString) >= 4
               and pygame.key.name(instructString[0]) == 's'):
             print("scale")
         # --------------------------------------------SOMETHING--------------------------------------------
         # SOMETHING COMMAND FORMAT => T[]
-        elif (len(instructString) == 4
+        elif (len(instructString) >= 4
               and pygame.key.name(instructString[0]) == 'e'):
             print("excrude")
+
+        elif (len(instructString) >= 6
+              and pygame.key.name(instructString[0]) == 'o'):
+            OrgCoords = [x for x in strManip.getNumbers(instructString[1:])]
+
+            transformationVals.originCoord = Coord(OrgCoords[0], OrgCoords[1],
+                                                   OrgCoords[2])
+
+            print("Origin changed to:", "(", OrgCoords[0], ",", OrgCoords[1],
+                  ",", OrgCoords[2], ")")
 
     def processKey(self, eventKey):
         # print(eventKey, " = ", pygame.key.name(eventKey))
@@ -95,7 +113,6 @@ class Command:
             # print(self.pressedKeys)
             self.processInstruct(self.pressedKeys)
             self.pressedKeys.clear()
-            print(transformationVals.rotateC.getDirection())
 
     def getRectCor(self):
         self.rect = self.commandWindow.getRect()
