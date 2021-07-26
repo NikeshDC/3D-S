@@ -32,67 +32,90 @@ class Command:
         # Length less than 2 causes index range error
 
         # --------------------------------------------ROTATION--------------------------------------------
-        # ROTATION COMMAND FORMAT => R[DIRECTION][2 DIGIT DEGREE][O FOR ORIGIN][2 DIGIT X VAL][","][2 DIGIT Y VAL]
-        # DEFINING ORIGIN IS OPTIONAL
-        # PREVIOUSLY SET ORIGIN WILL BE DEFAULT ORIGIN
-        if (len(instructString) >= 4
+        # ROTATION COMMAND FORMAT => R[AXIS][DEGREE]
+        # Minimum command is r[dir](deg) deg is optional
+        if (len(instructString) >= 2
                 and pygame.key.name(instructString[0]) == 'r'):
-            rotationAngle = int(pygame.key.name(instructString[2])) * 10 + int(
-                pygame.key.name(instructString[3]))
-            transformationVals.rotateC.setAngle(rotationAngle)
-            if (pygame.key.name(instructString[1]) == 'c'):
-                transformationVals.rotateC.setDirection(True)
-                print("rotate clockwise by ", rotationAngle, " degree")
-            elif (pygame.key.name(instructString[1]) == 'a'):
-                transformationVals.rotateC.setDirection(False)
-                print("Rotate anticlockwise by", rotationAngle, " degree")
-            # if (len(instructString) == 12
-            #         and pygame.key.name(instructString[4]) == 'o'
-            #         and checkKeys.isDigit(instructString[5])
-            #         and checkKeys.isDigit(instructString[6])
-            #         and checkKeys.isDigit(instructString[8])
-            #         and checkKeys.isDigit(instructString[9])
-            #         and checkKeys.isDigit(instructString[11])
-            #         and checkKeys.isDigit(instructString[12])):
-            #     rx = int(pygame.key.name(instructString[5])) * 10 + int(
-            #         pygame.key.name(instructString[6]))
-            #     ry = int(pygame.key.name(instructString[8])) * 10 + int(
-            #         pygame.key.name(instructString[9]))
-            #     rz = int(pygame.key.name(instructString[11])) * 10 + int(
-            #         pygame.key.name(instructString[12]))
-            #     transformationVals.rotateC.setFixedPoint(Coord(rx, ry, rz))
-            #     print("Origin changed to: (", rx, ",", ry, ",", rz, ")")
+
+            if (checkKeys.isAxesAlpha(pygame.key.name(instructString[1]))):
+                transformationVals.rotateC.setDirection(
+                    pygame.key.name(instructString[1]))
+            else:
+                print("Invalid direction\nSelected Default Direction[x]")
+
+            if (len(instructString) > 2):
+                rotationAngle = float(strManip.makeStr(instructString[2:]))
+                transformationVals.rotateC.setAngle(rotationAngle)
+            else:
+                transformationVals.rotateC.setAngle()
+
+            print("Rotation about ", transformationVals.rotateC.getDirection(),
+                  " by ", transformationVals.rotateC.getAngle(), "degree")
 
         # --------------------------------------------TRANSLATION--------------------------------------------
-        # TRANSLATION COMMAND FORMAT => T[]
-        elif (len(instructString) >= 4
+        # TRANSLATION COMMAND FORMAT => T[AXIS][VAL[DIST?]]
+        elif (len(instructString) >= 2
               and pygame.key.name(instructString[0]) == 't'):
 
-            transVals = strManip.getNumbers(instructString[1:])
-            transformationVals.translateC = TranslateC(
-                Coord(transVals[0], transVals[1], transVals[2]))
-            print("Translate about:", "(", transVals[0], ",", transVals[1],
-                  ",", transVals[2], ")")
+            if (checkKeys.isAxesAlpha(pygame.key.name(instructString[1]))):
+                transformationVals.translateC.setDirection(
+                    pygame.key.name(instructString[1]))
+            else:
+                print("Invalid axis\nSelected Default axis[x]")
+            if (len(instructString) > 2):
+                translationVal = float(strManip.makeStr(instructString[2:]))
+                transformationVals.translateC.setTranslVal(translationVal)
+            else:
+                transformationVals.translateC.setTranslVal()
+
+            print("Translation in ",
+                  transformationVals.translateC.getDirection(), " axis by ",
+                  transformationVals.translateC.getTranslVal())
         # --------------------------------------------SCALLING--------------------------------------------
-        # SCALLING COMMAND FORMAT => T[]
-        elif (len(instructString) >= 4
+        # SCALLING COMMAND FORMAT => S(AXIS)
+        elif (len(instructString) >= 2
               and pygame.key.name(instructString[0]) == 's'):
-            print("scale")
-        # --------------------------------------------SOMETHING--------------------------------------------
-        # SOMETHING COMMAND FORMAT => T[]
-        elif (len(instructString) >= 4
-              and pygame.key.name(instructString[0]) == 'e'):
-            print("excrude")
+            if checkKeys.isAlpha(instructString[1]):
+                transformationVals.scaleC.setDirection(
+                    pygame.key.name(instructString[1]))
+                scaleVal = float(strManip.makeStr(instructString[2:]))
+                transformationVals.scaleC.setScaleVal(scaleVal)
+            else:
+                scaleVal = float(strManip.makeStr(instructString[1:]))
+                transformationVals.scaleC.setScaleVal(scaleVal)
+                transformationVals.scaleC.setDirection()
+            print("Scalling about ", transformationVals.scaleC.getDirection(),
+                  "axis by", transformationVals.scaleC.getScaleVal())
+        # --------------------------------------------EXTRUDE--------------------------------------------
+        # EXTRUDE COMMAND FORMAT => T[]
+        elif (pygame.key.name(instructString[0]) == 'e'):
+            if (len(instructString) == 1):
+                # set default val
+                # omnidirectional scaling
+                transformationVals.excrudeC.setDirection()
+                transformationVals.excrudeC.setExtrudeVal()
+            elif (checkKeys.isAxesAlpha(pygame.key.name(instructString[1]))):
+                # SET EXTRUDE DIR
+                if (len(instructString) > 2):
+                    # get extrude val
+                    pass
+                else:
+                    # default val
+                    pass
+            elif (checkKeys.isDigit(instructString[1])):
+                # get extrude val
+                pass
+            print("extrude")
 
-        elif (len(instructString) >= 6
-              and pygame.key.name(instructString[0]) == 'o'):
-            OrgCoords = [x for x in strManip.getNumbers(instructString[1:])]
+        # elif (len(instructString) >= 6
+        #       and pygame.key.name(instructString[0]) == 'o'):
+        #     OrgCoords = [x for x in strManip.getNumbers(instructString[1:])]
 
-            transformationVals.originCoord = Coord(OrgCoords[0], OrgCoords[1],
-                                                   OrgCoords[2])
+        #     transformationVals.originCoord = Coord(OrgCoords[0], OrgCoords[1],
+        #                                            OrgCoords[2])
 
-            print("Origin changed to:", "(", OrgCoords[0], ",", OrgCoords[1],
-                  ",", OrgCoords[2], ")")
+        #     print("Origin changed to:", "(", OrgCoords[0], ",", OrgCoords[1],
+        #           ",", OrgCoords[2], ")")
 
     def processKey(self, eventKey):
         # print(eventKey, " = ", pygame.key.name(eventKey))
@@ -100,7 +123,7 @@ class Command:
         # All Command instructions are aplhanumeric
         # 0 = 48 9 = 57 a= 97 z =122
         if (checkKeys.isAlpha(eventKey) or checkKeys.isDigit(eventKey)
-                or eventKey == 44):
+                or eventKey == 44 or eventKey == 46):
 
             self.pressedKeys.append(eventKey)
 

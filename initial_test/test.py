@@ -1,12 +1,14 @@
 import pygame
 from pygame import gfxdraw
 import sys
+
+from pygame.constants import K_LCTRL, K_LSHIFT, K_RCTRL
 from graphics_utility import *
 from D3_utility import *
 from utility_2d import *
 from eventHandlers import *
 import numpy
-
+from TransfClasses import selectAll
 #print(lineIntersects(((7,7),(5,5)),((5,0),(0,5))))
 
 ##abc = True
@@ -119,7 +121,12 @@ while True:
             # Application closes if Key 'q' is pressed
             if event.key == pygame.K_q:
                 sys.exit()
-            keyP.processKey(event.key)
+            elif (pygame.key.get_pressed()[K_LCTRL]
+                  or pygame.key.get_pressed()[K_RCTRL]
+                  ) and event.key == pygame.K_a:
+                selectAll()
+            else:
+                keyP.processKey(event.key)
 
         #elif event.type == pygame.MOUSEBUTTONDOWN:
         #abc = True
