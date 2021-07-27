@@ -8,7 +8,7 @@ from D3_utility import *
 from utility_2d import *
 from eventHandlers import *
 import numpy
-from TransfClasses import selectAll
+from TransfClasses import selectAll, changeOrigin
 #print(lineIntersects(((7,7),(5,5)),((5,0),(0,5))))
 
 ##abc = True
@@ -22,6 +22,9 @@ screen_yc = screen_y + 50
 
 #account for different dimensions of screen width and height to draw proportionately
 screen_xy = min(screen_x, screen_yc)
+
+# Orign toggler
+orgSel = ORIGIN
 
 
 def topixel(x, y):
@@ -125,6 +128,8 @@ while True:
                   or pygame.key.get_pressed()[K_RCTRL]
                   ) and event.key == pygame.K_a:
                 selectAll()
+            elif (event.key == pygame.K_o):
+                orgSel = changeOrigin(orgSel)
             else:
                 keyP.processKey(event.key)
 

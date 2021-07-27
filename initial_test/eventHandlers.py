@@ -94,18 +94,29 @@ class Command:
                 # omnidirectional scaling
                 transformationVals.excrudeC.setDirection()
                 transformationVals.excrudeC.setExtrudeVal()
-            elif (checkKeys.isAxesAlpha(pygame.key.name(instructString[1]))):
+            elif (len(instructString) >= 2 and checkKeys.isAxesAlpha(
+                    pygame.key.name(instructString[1]))):
                 # SET EXTRUDE DIR
+                transformationVals.excrudeC.setDirection(
+                    pygame.key.name(instructString[1]))
                 if (len(instructString) > 2):
                     # get extrude val
+                    extrudeVal = float(strManip.makeStr(instructString[2:]))
+                    transformationVals.excrudeC.setExtrudeVal(extrudeVal)
                     pass
                 else:
                     # default val
+                    transformationVals.excrudeC.setExtrudeVal()
                     pass
             elif (checkKeys.isDigit(instructString[1])):
                 # get extrude val
+                extrudeVal = float(strManip.makeStr(instructString[1:]))
+                transformationVals.excrudeC.setExtrudeVal(extrudeVal)
+                # Set omnidirectional Extrude
+                transformationVals.excrudeC.setDirection()
                 pass
-            print("extrude")
+            print("Extrude along ", transformationVals.excrudeC.getDirection(),
+                  "dir by", transformationVals.excrudeC.getExtrudeVal())
 
         # elif (len(instructString) >= 6
         #       and pygame.key.name(instructString[0]) == 'o'):

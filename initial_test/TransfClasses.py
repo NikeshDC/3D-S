@@ -193,3 +193,23 @@ def selectAll():
     # Select all edges
     print("All edges selected.")
     pass
+
+
+# Origins
+ORIGIN, CENTRE = 0, 1
+
+
+def changeOrigin(orginSel: bool):
+    # Code to toogle origin
+    if orginSel == ORIGIN:
+        # Set origin to main origin
+        print("Main")
+        orginSel = CENTRE
+        pass
+    elif orginSel == CENTRE:
+        # Set origin to object's centre
+        print("Centre")
+        orginSel = ORIGIN
+        pass
+    # orginSel = orginSel + 1
+    return orginSel
