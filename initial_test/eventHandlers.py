@@ -39,7 +39,8 @@ class Command:
             count = 0
             if (len(instructString) < 2):
                 correct = False
-            elif (len(instructString) == 2):
+            elif (len(instructString) == 2) and checkKeys.isAlpha(
+                    instructString[1]):
                 correct = True
                 if checkKeys.isAxesAlpha(pygame.key.name(instructString[1])):
                     transformationVals.rotateC.setDirection(
@@ -87,7 +88,8 @@ class Command:
             correct = False
             if (len(instructString) < 2):
                 correct = False
-            elif (len(instructString) == 2):
+            elif (len(instructString) == 2) and checkKeys.isAlpha(
+                    instructString[1]):
                 correct = True
                 if (checkKeys.isAxesAlpha(pygame.key.name(instructString[1]))):
                     transformationVals.translateC.setDirection(
