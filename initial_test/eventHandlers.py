@@ -17,9 +17,6 @@ class CommandWindow:
         return self.rect
 
 
-print
-
-
 class Command:
     def __init__(self, cmnd: CommandWindow, mFont: Font) -> None:
         self.pressedKeys = []
@@ -156,6 +153,37 @@ class Command:
         for x in self.pressedKeys:
             kStr = kStr + pygame.key.name(x)
         return kStr
+
+
+class mouseScrollControl:
+    def __init__(self,
+                 initialList: list = [1, 2, 3, 4, 5, 6],
+                 initialIndex=0) -> None:
+        self.selectedList = initialList
+        self.selectedIndex = initialIndex
+
+    def processEvent(self, event):
+        if event.button == 4:
+            print("Scroll down")
+            if (self.selectedIndex > 0):
+                self.selectedIndex = (self.selectedIndex - 1)
+            # self.selectedList.pop()
+            # self.selectedIndex = self.selectedList[-1]
+        elif event.button == 5:
+            print("Scroll up")
+            self.selectedIndex = (self.selectedIndex + 1) % len(
+                self.selectedList)
+            # self.selectedList.append(self.selectedIndex)
+        print(self.selectedList[self.selectedIndex])
+
+    def setSelectedIndex(self, Index):
+        self.selectedIndex = Index
+
+    def getSelectedIndex(self):
+        return self.selectedIndex
+
+    def getSelectedList(self):
+        return self.selectedList
 
 
 # def processInstruct(instructString: list):

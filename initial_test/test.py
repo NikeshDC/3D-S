@@ -72,6 +72,9 @@ keyCommand = CommandWindow(
     keyC_color, pygame.Rect(0, screen_yc - 40, screen_x, screen_yc - 40))
 
 keyP = Command(keyCommand, cmdFont)
+# Mouse scroll control
+scrollC = mouseScrollControl()
+
 #transforming model to viewing coordinates -------------------------------
 for vertex in m1.vertices:
     v = numpy.array([[vertex.x], [vertex.y], [vertex.z], [1]])
@@ -132,6 +135,10 @@ while True:
                 orgSel = changeOrigin(orgSel)
             else:
                 keyP.processKey(event.key)
+
+        # MOUSE CONTROLS
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            scrollC.processEvent(event)
 
         #elif event.type == pygame.MOUSEBUTTONDOWN:
         #abc = True
