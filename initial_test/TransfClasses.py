@@ -27,6 +27,8 @@ class checkKeys:
         return False
 
 
+from collections import defaultdict
+from typing import DefaultDict
 import pygame
 
 
@@ -91,7 +93,7 @@ class RotateC:
         self.__fixedPoint = Coord()
 
     # True for clockwise and false for anticlockwise
-    def setDirection(self, dir):
+    def setDirection(self, dir=defaultDir):
         self.__rotateDir = dir
 
     def setAngle(self, deg=defaultVal):
@@ -120,7 +122,7 @@ class TranslateC:
     def setTranslVal(self, val: float = defaultVal):
         self.__translVal = val
 
-    def setDirection(self, dir):
+    def setDirection(self, dir=defaultDir):
         self.__translDir = dir
 
     def getTranslVal(self):
@@ -131,7 +133,7 @@ class TranslateC:
 
 
 class ScaleC:
-    defaultVal, defaultDir = 2.0, 'x'
+    defaultVal, defaultDir = 2.0, 'a'
 
     def __init__(self, scalingValue=defaultVal, dir=defaultDir) -> None:
         self.__scaleVal = scalingValue
