@@ -4,7 +4,7 @@ class checkKeys:
 
     @staticmethod
     def isDigit(x):
-        if x >= 48 and x <= 57:
+        if (x >= 48 and x <= 57):  #or (x >= 1073741913 and x <= 1073741922):
             return True
         return False
 

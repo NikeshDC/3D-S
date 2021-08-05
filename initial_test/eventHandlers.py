@@ -1,5 +1,6 @@
 from numpy.core.numeric import correlate
 import pygame
+from pygame import event
 
 from pygame.constants import K_RETURN, K_BACKSPACE
 from pygame.font import Font
@@ -249,13 +250,35 @@ class Command:
 
 # -----------------------------------------------------------------------------------------------------------
 
+    def changeToNum(self, eventKey):
+        if (eventKey == 1073741922):
+            # Numpad 0
+            eventK = 48
+        elif (eventKey == 1073741923):
+            # Numpad period(.)
+            eventK = 46
+        elif (eventKey == 1073741912) and len(self.pressedKeys) != 0:
+            # Enter Key
+            self.processInstruct(self.pressedKeys)
+            self.pressedKeys.clear()
+            return
+        elif (eventKey >= 1073741913 and eventKey <= 1073741921):
+            # Numpad 1..9
+            eventK = eventKey - 1073741864
+        return eventK
+
     def processKey(self, eventKey):
         print(eventKey, " = ", pygame.key.name(eventKey))
 
         # All Command instructions are aplhanumeric
         # 0 = 48 9 = 57 a= 97 z =122
-        if (checkKeys.isAlpha(eventKey) or checkKeys.isDigit(eventKey)
-                or eventKey == 44 or eventKey == 46):
+        if (eventKey >= 1073741913
+                and eventKey <= 1073741923) or (eventKey == 1073741912):
+            eventK = self.changeToNum(eventKey)
+            if (eventKey != 1073741912):
+                self.pressedKeys.append(eventK)
+        elif (checkKeys.isAlpha(eventKey) or checkKeys.isDigit(eventKey)
+              or pygame.key.name(eventKey) == '.'):
 
             self.pressedKeys.append(eventKey)
 
