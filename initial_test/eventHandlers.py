@@ -336,6 +336,26 @@ class mouseScrollControl:
     def getSelectedList(self):
         return self.selectedList
 
+    @staticmethod
+    def processMovement(prevMouseX, prevMouseY, mouseX, mouseY):
+        movX = mouseX - prevMouseX
+        movY = mouseY - prevMouseY
+        if (movX == movY == 0):
+            return
+        if (movX < 0):
+            print("Right to left by ", -movX)
+        elif (movX > 0):
+            print("Left to Right by ", movX)
+        else:
+            print("No horizontal movement")
+        if (movY < 0):
+            print("Bottom to Top by ", -movY)
+        elif (movY > 0):
+            print("Top to Bottom by ", movY)
+        else:
+            print("No vertital movement")
+        pass
+
 
 # def processInstruct(instructString: list):
 

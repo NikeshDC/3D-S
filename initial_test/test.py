@@ -2,7 +2,7 @@ import pygame
 from pygame import gfxdraw
 import sys
 
-from pygame.constants import K_LCTRL, K_LSHIFT, K_RCTRL
+from pygame.constants import K_LALT, K_LCTRL, K_LSHIFT, K_RALT, K_RCTRL
 from graphics_utility import *
 from D3_utility import *
 from utility_2d import *
@@ -75,6 +75,10 @@ keyP = Command(keyCommand, cmdFont)
 # Mouse scroll control
 scrollC = mouseScrollControl()
 
+# Mouse position store
+prevMouseX, prevMouseY = pygame.mouse.get_pos()
+mouseX, mouseY = prevMouseX, prevMouseY
+pressed = False
 #transforming model to viewing coordinates -------------------------------
 for vertex in m1.vertices:
     v = numpy.array([[vertex.x], [vertex.y], [vertex.z], [1]])
@@ -133,11 +137,30 @@ while True:
                 selectAll()
             elif (event.key == pygame.K_o):
                 orgSel = changeOrigin(orgSel)
+            elif (event.key == (pygame.K_LALT)
+                  or (event.key == pygame.K_RALT)):
+                pass
             else:
                 keyP.processKey(event.key)
 
         # MOUSE CONTROLS
-        if event.type == pygame.MOUSEBUTTONDOWN:
+
+        # move mouse while pressing ALT to pan
+        if (event.type == pygame.MOUSEBUTTONDOWN) and (event.button == 1) and (
+                pygame.key.get_pressed()[K_LALT]
+                or pygame.key.get_pressed()[K_RALT]) and (not pressed):
+            prevMouseX, prevMouseY = pygame.mouse.get_pos()
+            pressed = True
+        elif (event.type == pygame.MOUSEBUTTONUP) and (event.button == 1) and (
+                pygame.key.get_pressed()[K_LALT]
+                or pygame.key.get_pressed()[K_RALT]) and pressed:
+            mouseX, mouseY = pygame.mouse.get_pos()
+            scrollC.processMovement(prevMouseX, prevMouseY, mouseX, mouseY)
+            pressed = False
+
+        # Scoll through list
+        if (event.type == pygame.MOUSEBUTTONDOWN) and (event.button == 4
+                                                       or event.button == 5):
             scrollC.processEvent(event)
 
         #elif event.type == pygame.MOUSEBUTTONDOWN:
