@@ -203,15 +203,18 @@ while True:
                 or pygame.key.get_pressed()[K_RALT]) and pressed:
             mouseX, mouseY = pygame.mouse.get_pos()
             scrollC.processMovement(prevMouseX, prevMouseY, mouseX, mouseY)
-            if scrollC.movement and scrollC.movX != 0 :
+            if scrollC.movement and scrollC.movX != 0 and scrollC.movY != 0:
                 mx = rotate_pixel_amount * scrollC.movX/abs(scrollC.movX) / screen_xy * rotate_amount
+                my = rotate_pixel_amount * scrollC.movY/abs(scrollC.movY) / screen_xy * rotate_amount
 ##                mx,my = tonormal(scrollC.movX, scrollC.movY)
 ##                mx,my = mx * rotate_amount, my * rotate_amount
                 v = numpy.array([[mainCamera.x],
                                  [mainCamera.y],
                                  [mainCamera.z],
                                  [1,          ]])
-                v = Transform_matrix.rotate(mx,'y').dot(v)
+                up_rot = Transform_matrix.rotate(math.degrees(math.atan(mainCamera.z/mainCamera.x)),'y') .dot(Transform_matrix.rotate(my,'z').dot(
+                                                    Transform_matrix.rotate(-math.degrees(math.atan(mainCamera.z/mainCamera.x)),'y')))
+                v = Transform_matrix.rotate(mx,'y').dot(up_rot.dot(v))
                 mainCamera.x, mainCamera.y, mainCamera.z = v[0][0], v[1][0], v[2][0]
                 mainCamera.constructUVN()
                 viewModel()
