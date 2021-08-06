@@ -26,7 +26,11 @@ class Command:
         self.rect = self.commandWindow.rect
         self.font = mFont
 
-    def processInstruct(self, instructString: list, selected_surface = None, mainCamera = None, model = None):
+    def processInstruct(self,
+                        instructString: list,
+                        selected_surface=None,
+                        mainCamera=None,
+                        model=None):
         # Checking for transformation type
         # Length less than 2 causes index range error
 
@@ -69,19 +73,20 @@ class Command:
                         transformationVals.rotateC.setDirection(
                             pygame.key.name(instructString[1]))
                     else:
-                        print(
-                            "Invalid direction\nSelected Default Direction[x]")
+                        # print(
+                        #     "Invalid direction\nSelected Default Direction[x]")
                         transformationVals.rotateC.setDirection()
                     rotationAngle = float(strManip.makeStr(instructString[2:]))
                     transformationVals.rotateC.setAngle(rotationAngle)
             if (correct):
-                print("Rotation about ",
-                      transformationVals.rotateC.getDirection(), " by ",
-                      transformationVals.rotateC.getAngle(), "degree")
+                # print("Rotation about ",
+                #       transformationVals.rotateC.getDirection(), " by ",
+                #       transformationVals.rotateC.getAngle(), "degree")
                 #rotating selected surface
                 if selected_surface and mainCamera:
-                    selected_surface.rotate_center(transformationVals.rotateC.getAngle(),transformationVals.rotateC.getDirection(),
-                                                   mainCamera)
+                    selected_surface.rotate_center(
+                        transformationVals.rotateC.getAngle(),
+                        transformationVals.rotateC.getDirection(), mainCamera)
             else:
                 print("Invalid Instruction Format")
 
@@ -127,10 +132,10 @@ class Command:
                         instructString[2:]))
                     transformationVals.translateC.setTranslVal(translationVal)
             if (correct):
-                print("Translation in ",
-                      transformationVals.translateC.getDirection(),
-                      " axis by ",
-                      transformationVals.translateC.getTranslVal())
+                # print("Translation in ",
+                #       transformationVals.translateC.getDirection(),
+                #       " axis by ",
+                #       transformationVals.translateC.getTranslVal())
                 #translating selected surface
                 if selected_surface and mainCamera:
                     tx = 0
@@ -142,8 +147,8 @@ class Command:
                         ty = transformationVals.translateC.getTranslVal()
                     elif transformationVals.translateC.getDirection() == 'z':
                         tz = transformationVals.translateC.getTranslVal()
-                    
-                    selected_surface.translate(tx,ty,tz,mainCamera)
+
+                    selected_surface.translate(tx, ty, tz, mainCamera)
             else:
                 print("Invalid Instruction Format")
         # --------------------------------------------SCALLING--------------------------------------------
@@ -198,9 +203,9 @@ class Command:
                 else:
                     correct = False
             if (correct):
-                print("Scalling about ",
-                      transformationVals.scaleC.getDirection(), "axis by",
-                      transformationVals.scaleC.getScaleVal())
+                # print("Scalling about ",
+                #       transformationVals.scaleC.getDirection(), "axis by",
+                #       transformationVals.scaleC.getScaleVal())
                 #scaling selected surface
                 if selected_surface and mainCamera:
                     sx = 1
@@ -216,8 +221,8 @@ class Command:
                         sx = transformationVals.scaleC.getScaleVal()
                         sy = transformationVals.scaleC.getScaleVal()
                         sz = transformationVals.scaleC.getScaleVal()
-                    
-                    selected_surface.scale_center(sx,sy,sz,mainCamera)
+
+                    selected_surface.scale_center(sx, sy, sz, mainCamera)
             else:
                 print("Invalid Instruction Format")
         # --------------------------------------------EXTRUDE--------------------------------------------
@@ -275,12 +280,14 @@ class Command:
                     transformationVals.excrudeC.setDirection()
 
             if (correct):
-                print("Extrude along ",
-                      transformationVals.excrudeC.getDirection(), "dir by",
-                      transformationVals.excrudeC.getExtrudeVal())
+                # print("Extrude along ",
+                #       transformationVals.excrudeC.getDirection(), "dir by",
+                #       transformationVals.excrudeC.getExtrudeVal())
                 if selected_surface and mainCamera and model:
-                    model.extrude(selected_surface, transformationVals.excrudeC.getExtrudeVal(),
-                                  transformationVals.excrudeC.getDirection(), mainCamera)
+                    model.extrude(selected_surface,
+                                  transformationVals.excrudeC.getExtrudeVal(),
+                                  transformationVals.excrudeC.getDirection(),
+                                  mainCamera)
                     selected_surface = None
             else:
                 print("Invalid Instruction Format")
@@ -305,8 +312,12 @@ class Command:
             eventK = eventKey - 1073741864
         return eventK
 
-    def processKey(self, eventKey, selected_surface = None, mainCamera = None, model = None):
-        print(eventKey, " = ", pygame.key.name(eventKey))
+    def processKey(self,
+                   eventKey,
+                   selected_surface=None,
+                   mainCamera=None,
+                   model=None):
+        # print(eventKey, " = ", pygame.key.name(eventKey))
 
         # All Command instructions are aplhanumeric
         # 0 = 48 9 = 57 a= 97 z =122
@@ -327,7 +338,8 @@ class Command:
         # Enter Key action
         elif eventKey == pygame.K_RETURN and len(self.pressedKeys) != 0:
             # print(self.pressedKeys)
-            self.processInstruct(self.pressedKeys, selected_surface, mainCamera, model)
+            self.processInstruct(self.pressedKeys, selected_surface,
+                                 mainCamera, model)
             self.pressedKeys.clear()
         else:
             print("Unfamiliar Input Detected")
@@ -345,7 +357,9 @@ class Command:
 class mouseScrollControl:
     def __init__(self,
                  initialList: list = [1, 2, 3, 4, 5, 6],
-                 initialIndex=0, THRES_X = 300, THRES_Y = 300):
+                 initialIndex=0,
+                 THRES_X=300,
+                 THRES_Y=300):
         self.selectedList = initialList
         self.selectedIndex = initialIndex
         self.movement = False
@@ -353,12 +367,11 @@ class mouseScrollControl:
         self.movY = 0
         self.THRES_X = THRES_X
         self.THRES_Y = THRES_Y
-        
 
     def processEvent(self, event):
         if self.selectedList:
             if event.button == 4:
-                print("Scroll down")
+                # print("Scroll down")
                 if (self.selectedIndex > 0):
                     self.selectedIndex = (self.selectedIndex - 1)
                 else:
@@ -366,7 +379,7 @@ class mouseScrollControl:
                 # self.selectedList.pop()
                 # self.selectedIndex = self.selectedList[-1]
             elif event.button == 5:
-                print("Scroll up")
+                # print("Scroll up")
                 self.selectedIndex = (self.selectedIndex + 1) % len(
                     self.selectedList)
                 # self.selectedList.append(self.selectedIndex)
@@ -381,27 +394,28 @@ class mouseScrollControl:
     def getSelectedList(self):
         return self.selectedList
 
-    def processMovement(self,prevMouseX, prevMouseY, mouseX, mouseY):
+    def processMovement(self, prevMouseX, prevMouseY, mouseX, mouseY):
         self.movX = mouseX - prevMouseX
         self.movY = mouseY - prevMouseY
-        if (self.movX == self.movY == 0) or (self.movX > self.THRES_X or self.movY > self.THRES_Y):
+        if (self.movX == self.movY == 0) or (self.movX > self.THRES_X
+                                             or self.movY > self.THRES_Y):
             self.movement = False
             return
         else:
             self.movement = True
-            
-        if (self.movX < 0):
-            print("Right to left by ", -self.movX)
-        elif (self.movX > 0):
-            print("Left to Right by ", self.movX)
-        else:
-            print("No horizontal movement")
-        if (self.movY < 0):
-            print("Bottom to Top by ", -self.movY)
-        elif (self.movY > 0):
-            print("Top to Bottom by ", self.movY)
-        else:
-            print("No vertital movement")
+
+        # if (self.movX < 0):
+        #     print("Right to left by ", -self.movX)
+        # elif (self.movX > 0):
+        #     print("Left to Right by ", self.movX)
+        # else:
+        #     print("No horizontal movement")
+        # if (self.movY < 0):
+        #     print("Bottom to Top by ", -self.movY)
+        # elif (self.movY > 0):
+        #     print("Top to Bottom by ", self.movY)
+        # else:
+        #     print("No vertital movement")
 
 
 # def processInstruct(instructString: list):
