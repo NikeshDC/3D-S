@@ -57,15 +57,27 @@ class Command:
                 transformationVals.rotateC.setAngle()
             else:
                 correct = False
-                for x in instructString[2:]:
-                    if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
-                                                  and count == 0):
-                        correct = True
-                        if (pygame.key.name(x) == '.'):
-                            count = 1
-                    else:
-                        correct = False
-                        break
+                if (pygame.key.name(instructString[2]) == '-'):
+                    for x in instructString[3:]:
+                        if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
+                                                      and count == 0):
+                            correct = True
+                            if (pygame.key.name(x) == '.'):
+                                count = 1
+                        else:
+                            correct = False
+                            break
+                else:
+
+                    for x in instructString[2:]:
+                        if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
+                                                      and count == 0):
+                            correct = True
+                            if (pygame.key.name(x) == '.'):
+                                count = 1
+                        else:
+                            correct = False
+                            break
 
                 if (correct):
                     if checkKeys.isAxesAlpha(pygame.key.name(
@@ -111,15 +123,28 @@ class Command:
                 transformationVals.translateC.setTranslVal()
             else:  #ELIF LEN INS STR = MAX_PRECISION
                 correct = False
-                for x in instructString[2:]:
-                    if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
-                                                  and count == 0):
-                        correct = True
-                        if (pygame.key.name(x) == '.'):
-                            count = 1
-                    else:
-                        correct = False
-                        break
+                if (pygame.key.name(instructString[2]) == '-'):
+                    for x in instructString[3:]:
+                        if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
+                                                      and count == 0):
+                            correct = True
+                            if (pygame.key.name(x) == '.'):
+                                count = 1
+                        else:
+                            correct = False
+                            break
+                else:
+
+                    for x in instructString[2:]:
+                        if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
+                                                      and count == 0):
+                            correct = True
+                            if (pygame.key.name(x) == '.'):
+                                count = 1
+                        else:
+                            correct = False
+                            break
+
                 if (correct):
                     if (checkKeys.isAxesAlpha(
                             pygame.key.name(instructString[1]))):
@@ -169,32 +194,77 @@ class Command:
                         print("Invalid axis\nSelected Default axis(Entirity)")
                         transformationVals.scaleC.setDirection()
                     correct = False
-                    for x in instructString[2:]:
-                        if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
-                                                      and count == 0):
-                            correct = True
-                            if (pygame.key.name(x) == '.'):
-                                count = 1
-                        else:
-                            correct = False
-                            break
+                    # for x in instructString[2:]:
+                    #     if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
+                    #                                   and count == 0):
+                    #         correct = True
+                    #         if (pygame.key.name(x) == '.'):
+                    #             count = 1
+                    #     else:
+                    #         correct = False
+                    #         break
+                    if (pygame.key.name(instructString[2]) == '-'):
+                        for x in instructString[3:]:
+                            if (checkKeys.isDigit(x)) or (
+                                    pygame.key.name(x) == '.' and count == 0):
+                                correct = True
+                                if (pygame.key.name(x) == '.'):
+                                    count = 1
+                            else:
+                                correct = False
+                                break
+                    else:
+
+                        for x in instructString[2:]:
+                            if (checkKeys.isDigit(x)) or (
+                                    pygame.key.name(x) == '.' and count == 0):
+                                correct = True
+                                if (pygame.key.name(x) == '.'):
+                                    count = 1
+                            else:
+                                correct = False
+                                break
+
                     if (correct):
                         scaleVal = float(strManip.makeStr(instructString[2:]))
                         transformationVals.scaleC.setScaleVal(scaleVal)
                     elif (len(instructString) == 2):
                         correct = True
                         transformationVals.scaleC.setScaleVal()
-                elif (checkKeys.isDigit(instructString[1])):
+                elif (checkKeys.isDigit(instructString[1])
+                      or pygame.key.name(instructString[1]) == '-'):
                     correct = False
-                    for x in instructString[1:]:
-                        if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
-                                                      and count == 0):
-                            correct = True
-                            if (pygame.key.name(x) == '.'):
-                                count = 1
-                        else:
-                            correct = False
-                            break
+                    # for x in instructString[1:]:
+                    #     if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
+                    #                                   and count == 0):
+                    #         correct = True
+                    #         if (pygame.key.name(x) == '.'):
+                    #             count = 1
+                    #     else:
+                    #         correct = False
+                    #         break
+                    if (pygame.key.name(instructString[1]) == '-'):
+                        for x in instructString[2:]:
+                            if (checkKeys.isDigit(x)) or (
+                                    pygame.key.name(x) == '.' and count == 0):
+                                correct = True
+                                if (pygame.key.name(x) == '.'):
+                                    count = 1
+                            else:
+                                correct = False
+                                break
+                    else:
+
+                        for x in instructString[1:]:
+                            if (checkKeys.isDigit(x)) or (
+                                    pygame.key.name(x) == '.' and count == 0):
+                                correct = True
+                                if (pygame.key.name(x) == '.'):
+                                    count = 1
+                            else:
+                                correct = False
+                                break
+
                     if (correct):
                         # Setting default direction
                         transformationVals.scaleC.setDirection()
@@ -243,15 +313,37 @@ class Command:
                     pygame.key.name(instructString[1]))
                 if (len(instructString) > 2):
                     correct = False
-                    for x in instructString[2:]:
-                        if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
-                                                      and count == 0):
-                            correct = True
-                            if (pygame.key.name(x) == '.'):
-                                count = 1
-                        else:
-                            correct = False
-                            break
+                    # for x in instructString[2:]:
+                    #     if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
+                    #                                   and count == 0):
+                    #         correct = True
+                    #         if (pygame.key.name(x) == '.'):
+                    #             count = 1
+                    #     else:
+                    #         correct = False
+                    #         break
+                    if (pygame.key.name(instructString[2]) == '-'):
+                        for x in instructString[3:]:
+                            if (checkKeys.isDigit(x)) or (
+                                    pygame.key.name(x) == '.' and count == 0):
+                                correct = True
+                                if (pygame.key.name(x) == '.'):
+                                    count = 1
+                            else:
+                                correct = False
+                                break
+                    else:
+
+                        for x in instructString[2:]:
+                            if (checkKeys.isDigit(x)) or (
+                                    pygame.key.name(x) == '.' and count == 0):
+                                correct = True
+                                if (pygame.key.name(x) == '.'):
+                                    count = 1
+                            else:
+                                correct = False
+                                break
+
                     if (correct):
                         # get extrude val
                         extrudeVal = float(strManip.makeStr(
@@ -261,17 +353,40 @@ class Command:
                     correct = True
                     # default val
                     transformationVals.excrudeC.setExtrudeVal()
-            elif (checkKeys.isDigit(instructString[1])):
+            elif (checkKeys.isDigit(instructString[1])
+                  or pygame.key.name(instructString[1]) == '-'):
                 correct = False
-                for x in instructString[1:]:
-                    if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
-                                                  and count == 0):
-                        correct = True
-                        if (pygame.key.name(x) == '.'):
-                            count = 1
-                    else:
-                        correct = False
-                        break
+                # for x in instructString[1:]:
+                #     if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
+                #                                   and count == 0):
+                #         correct = True
+                #         if (pygame.key.name(x) == '.'):
+                #             count = 1
+                #     else:
+                #         correct = False
+                #         break
+                if (pygame.key.name(instructString[1]) == '-'):
+                    for x in instructString[2:]:
+                        if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
+                                                      and count == 0):
+                            correct = True
+                            if (pygame.key.name(x) == '.'):
+                                count = 1
+                        else:
+                            correct = False
+                            break
+                else:
+
+                    for x in instructString[1:]:
+                        if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
+                                                      and count == 0):
+                            correct = True
+                            if (pygame.key.name(x) == '.'):
+                                count = 1
+                        else:
+                            correct = False
+                            break
+
                 if (correct):
                     # get extrude val
                     extrudeVal = float(strManip.makeStr(instructString[1:]))
@@ -327,7 +442,8 @@ class Command:
             if (eventKey != 1073741912):
                 self.pressedKeys.append(eventK)
         elif (checkKeys.isAlpha(eventKey) or checkKeys.isDigit(eventKey)
-              or pygame.key.name(eventKey) == '.'):
+              or pygame.key.name(eventKey) == '.'
+              or pygame.key.name(eventKey) == '-'):
 
             self.pressedKeys.append(eventKey)
 
@@ -383,7 +499,7 @@ class mouseScrollControl:
                 self.selectedIndex = (self.selectedIndex + 1) % len(
                     self.selectedList)
                 # self.selectedList.append(self.selectedIndex)
-            print(self.selectedIndex)
+            # print(self.selectedIndex)
 
     def setSelectedIndex(self, Index):
         self.selectedIndex = Index
