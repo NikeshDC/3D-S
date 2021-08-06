@@ -84,7 +84,7 @@ class Coord:
 
 
 class RotateC:
-    defaultVal, defaultDir = 90.0, 'x'
+    defaultVal, defaultDir = 90.0, 'y'
 
     def __init__(self, dir=defaultDir, deg=defaultVal) -> None:
         # Default rotation is clockwise
@@ -153,7 +153,7 @@ class ScaleC:
 
 
 class ExtrudeC:
-    defaultVal, defaultDir = 1.0, 'a'
+    defaultVal, defaultDir = 1.0, 'n'
 
     def __init__(self, extrudingValue=defaultVal, dir=defaultDir) -> None:
         self.__extrudeVal = extrudingValue
