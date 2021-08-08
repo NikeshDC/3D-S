@@ -408,7 +408,7 @@ class Command:
                 print("Invalid Instruction Format")
 
         # --------------------------------------------INSSET--------------------------------------------
-        # INSSET COMMAND FORMAT => I(Value between min and max)
+        # INSET COMMAND FORMAT => I(Value between min and max)
         elif (pygame.key.name(instructString[0]) == 'i'):
             count = 0
             correct = False
@@ -433,7 +433,10 @@ class Command:
                     insetVal = InsetC.clamp(insetVal, InsetC.min, InsetC.max)
                     transformationVals.insetC.setInsetVal(insetVal)
             if (correct):
-                print("Inset by ", transformationVals.insetC.getInsetVal())
+                #print("Inset by ", transformationVals.insetC.getInsetVal())
+                if selected_surface and mainCamera and model:
+                    model.inset(selected_surface, transformationVals.insetC.getInsetVal(), mainCamera)
+                    selected_surface = None
             else:
                 print("Invalid Instruction Format")
 
