@@ -172,6 +172,27 @@ class ExtrudeC:
         return self.__extrudeDir
 
 
+class InsetC:
+    defaultVal = 0.5
+    min, max = 0.05, 0.95
+
+    def __init__(self, insettingValue=defaultVal) -> None:
+        self.__insetVal = insettingValue
+
+    def setInsetVal(self, val: float = defaultVal):
+        self.__insetVal = val
+
+    def getInsetVal(self):
+        return self.__insetVal
+
+    def clamp(val, minV=min, maxV=max):
+        if (val < minV):
+            return minV
+        elif (val > maxV):
+            return maxV
+        return val
+
+
 class TransfVars:
     def __init__(
         self,
@@ -179,16 +200,17 @@ class TransfVars:
         translateV=TranslateC(),
         scaleV=ScaleC(),
         extrudeV=ExtrudeC(),
+        insetV=InsetC(),
         originV=Coord()
     ) -> None:
 
         self.rotateC = rotateV
-        self.originCoord = originV
-
         self.translateC = translateV
         self.scaleC = scaleV
-        # Classes not defined yet
         self.excrudeC = extrudeV
+        self.insetC = insetV
+
+        self.originCoord = originV
 
 
 def selectAll():

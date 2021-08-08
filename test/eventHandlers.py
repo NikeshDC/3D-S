@@ -407,19 +407,55 @@ class Command:
             else:
                 print("Invalid Instruction Format")
 
+        # --------------------------------------------INSSET--------------------------------------------
+        # INSSET COMMAND FORMAT => I(Value between min and max)
+        elif (pygame.key.name(instructString[0]) == 'i'):
+            count = 0
+            correct = False
+            if (len(instructString) == 1):
+                correct = True
+                # Setting Default Inset Value
+                transformationVals.insetC.setInsetVal()
+            elif (len(instructString) > 1):
+                correct = False
+                for x in instructString[1:]:
+                    if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
+                                                  and count == 0):
+                        correct = True
+                        if (pygame.key.name(x) == '.'):
+                            count = 1
+                    else:
+                        correct = False
+                        break
+                if (correct):
+                    # get inset val
+                    insetVal = float(strManip.makeStr(instructString[1:]))
+                    insetVal = InsetC.clamp(insetVal, InsetC.min, InsetC.max)
+                    transformationVals.insetC.setInsetVal(insetVal)
+            if (correct):
+                print("Inset by ", transformationVals.insetC.getInsetVal())
+            else:
+                print("Invalid Instruction Format")
+
 
 # -----------------------------------------------------------------------------------------------------------
 
-    def changeToNum(self, eventKey):
+    def changeToNum(self, eventKey, selected_surface, mainCamera, model):
         if (eventKey == 1073741922):
             # Numpad 0
             eventK = 48
         elif (eventKey == 1073741923):
             # Numpad period(.)
             eventK = 46
-        elif (eventKey == 1073741912) and len(self.pressedKeys) != 0:
+        elif (eventKey == 1073741910):
+            # Numpad -
+            eventK = 45
+        elif (eventKey == 1073741912):
+            if (len(self.pressedKeys) == 0):
+                return
             # Enter Key
-            self.processInstruct(self.pressedKeys)
+            self.processInstruct(self.pressedKeys, selected_surface,
+                                 mainCamera, model)
             self.pressedKeys.clear()
             return
         elif (eventKey >= 1073741913 and eventKey <= 1073741921):
@@ -436,9 +472,10 @@ class Command:
 
         # All Command instructions are aplhanumeric
         # 0 = 48 9 = 57 a= 97 z =122
-        if (eventKey >= 1073741913
-                and eventKey <= 1073741923) or (eventKey == 1073741912):
-            eventK = self.changeToNum(eventKey)
+        if (eventKey >= 1073741913 and eventKey <= 1073741923) or (
+                eventKey == 1073741912) or (eventKey == 1073741910):
+            eventK = self.changeToNum(eventKey, selected_surface, mainCamera,
+                                      model)
             if (eventKey != 1073741912):
                 self.pressedKeys.append(eventK)
         elif (checkKeys.isAlpha(eventKey) or checkKeys.isDigit(eventKey)
