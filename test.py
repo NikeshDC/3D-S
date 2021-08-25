@@ -7,7 +7,7 @@ from D3_utility import Camera
 from utility_2d import isInterior
 import numpy
 from pygame.constants import K_LALT, K_LCTRL, K_LSHIFT, K_RALT, K_RCTRL
-from TransfClasses import selectAll, changeOrigin
+from TransfClasses import selectAll, changeOrigin, createNewModel
 from eventHandlers import *
 import time
 import settings
@@ -150,10 +150,11 @@ while True:
                   or pygame.key.get_pressed()[K_RCTRL]
                   ) and event.key == pygame.K_s:
                 saveModel(m1, "sample")
-            # elif (pygame.key.get_pressed()[K_LCTRL]
-            #       or pygame.key.get_pressed()[K_RCTRL]
-            #       ) and event.key == settings.KbControl.NEWMODEL:
-            #     print("Create New Model")
+            elif (pygame.key.get_pressed()[K_LCTRL]
+                  or pygame.key.get_pressed()[K_RCTRL]
+                  ) and event.key == settings.KbControl.NEWMODEL:
+                # Pass required arguments
+                createNewModel()
             elif (event.key == settings.KbControl.ORIGINSELECT
                   ) and event.type == pygame.KEYDOWN:
                 if keyP.origin:

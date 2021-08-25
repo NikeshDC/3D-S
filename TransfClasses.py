@@ -28,6 +28,7 @@ class checkKeys:
 
 
 from collections import defaultdict
+from graphics_utility import StandardModels
 from typing import DefaultDict
 import pygame
 
@@ -262,3 +263,10 @@ def changeOrigin(orginSel: bool):
         pass
     # orginSel = orginSel + 1
     return orginSel
+
+
+def createNewModel() -> StandardModels:
+    print("Create New Model")
+    m = StandardModels().model['cube']
+    return m
+    pass
