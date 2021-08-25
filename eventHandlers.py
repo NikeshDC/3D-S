@@ -31,6 +31,12 @@ class Command:
         self.extrude = False
         self.light_translate = False
         self.light_rotate = False
+        self.light_intensity = False
+        self.material_color = False
+        self.material_ambient = False
+        self.material_diffuse = False
+        self.material_specular_constant = False
+        self.material_specular_radius = False
 
     def processInstruct(self,
                         instructString: list,
@@ -486,6 +492,7 @@ class Command:
                 rgbVals = strManip.getNumbers(instructString[2:], '.')
                 mat.color = (rgbVals[0], rgbVals[1], rgbVals[2])
                 print("Print", rgbVals)
+                self.material_color = True
                 pass
             elif (pygame.key.name(instructString[1]) == 's'):
                 # --------------------------------------------SPECULAR RADIUS--------------------------------------------
@@ -510,6 +517,7 @@ class Command:
 
                     if (correct):
                         print("Spec Radius", mat.specRadius)
+                        self.material_specular_radius = True
                     else:
                         print("Invalid Instruction Format")
                 # --------------------------------------------SPECULAR CONSTANT--------------------------------------------
@@ -529,6 +537,7 @@ class Command:
                         mat.specConstant = float(
                             strManip.makeStr(instructString[2:]))
                         print("Spec Constant", mat.specConstant)
+                        self.material_specular_constant = True
                     else:
                         print("Invalid Instruction Format")
                 else:
@@ -554,6 +563,7 @@ class Command:
                             strManip.makeStr(instructString[2:]))
                 if (correct):
                     print("Ambient", mat.ambient)
+                    self.material_ambient = True
                 else:
                     print("Invaclid Instruction Format")
             elif (pygame.key.name(instructString[1]) == 'd'):
@@ -577,6 +587,7 @@ class Command:
                             strManip.makeStr(instructString[2:]))
                 if (correct):
                     print("diffuse", mat.diffuse)
+                    self.material_diffuse = True
                 else:
                     print("Invaclid Instruction Format")
 
@@ -710,6 +721,25 @@ class Command:
                           transformationVals.LTranslateC.getTranslVal())
                     # translating selected surface
 
+                else:
+                    print("Invalid Instruction Format")
+            elif (pygame.key.name(instructString[1]) == 'i'):
+                count = 0
+                correct = False
+                for x in instructString[2:]:
+                    if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
+                                                  and count == 0):
+                        correct = True
+                        if (pygame.key.name(x) == '.'):
+                            count = 1
+                    else:
+                        correct = False
+                        break
+                if (correct):
+                    transformationVals.lightIntensity = float(
+                        strManip.makeStr(instructString[2:]))
+
+                    print("Intensity  = ", transformationVals.lightIntensity)
                 else:
                     print("Invalid Instruction Format")
 

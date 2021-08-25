@@ -171,7 +171,7 @@ while True:
                 if keyP.multiselect:
                     keyP.multiselect = False
                     ss.multiselect = False
-                    print("multiselect on")
+                    print("multiselect off")
                 else:
                     keyP.multiselect = True
                     ss.multiselect = True
@@ -205,6 +205,19 @@ while True:
                     rang = transformationVals.LRotateC.getAngle()
                     selected_light.rotate(rang, rdir, mainCamera)
                     keyP.light_rotate = False
+                elif keyP.light_intensity and selected_light:
+                    selected_light.intensity = transformationVals.lightIntensity
+                    keyP.light_intensity = False
+                elif keyP.material_color and selectedModel:
+                    selectedModel.material.color = mat.color
+                elif keyP.material_ambient and selectedModel:
+                    selectedModel.material.ka = mat.ambient
+                elif keyP.material_diffuse and selectedModel:
+                    selectedModel.material.kd = mat.diffuse
+                elif keyP.material_specular_radius and selectedModel:
+                    selectedModel.material.ns = mat.specRadius
+                elif keyP.material_specular_constant and selectedModel:
+                    selectedModel.material.ks = mat.specConstant
 
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == settings.MouseControl.PANBUTTON:
             prevmousex, prevmousey = pygame.mouse.get_pos()

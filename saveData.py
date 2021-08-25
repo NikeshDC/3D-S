@@ -1,5 +1,6 @@
+from TransfClasses import Material
 from pygame import Vector2, surface
-from graphics_utility import Model, Surface, Vertex
+from graphics_utility import Model, StandardModels, Surface, Vertex
 from D3_utility import Camera
 
 
@@ -54,6 +55,12 @@ def saveModel(m1: Model, filename):
                     continue
                 python_file.write(a + ",")
 
+        python_file.write(
+            repr(m1.material.color[0]) + "," + repr(m1.material.color[1]) +
+            "," + repr(m1.material.color[2]) + "\n")
+        python_file.write(
+            repr(m1.material.ka) + "," + repr(m1.material.kd) + "," +
+            repr(m1.material.ks) + "," + repr(m1.material.ns))
         python_file.close()
     except Exception as e:
         # print(e.__class__)
@@ -77,7 +84,9 @@ def readModel(filename):
     vertexIndexForSurface = []
     for i in range(lenVertexList + 2, lenVertexList + lenSurfaceList + 2):
         vertexIndexForSurface.append(split(lines[i], ",", int))
-
+    materialColor = split(lines[-2], ",", int)
+    materialVals = split(lines[-1], ",", float)
+    print(materialColor, materialVals)
     model = Model()
     vertexObjL = []
     for vertex in vertexL:
@@ -94,6 +103,12 @@ def readModel(filename):
             s.addVertex(v)
 
         model.addSurface(s)
+    model.material.color = (materialColor[0], materialColor[1],
+                            materialColor[2])
+    model.material.ka = materialVals[0]
+    model.material.kd = materialVals[1]
+    model.material.ks = materialVals[2]
+    model.material.ns = materialVals[3]
     return model
 
 
@@ -113,4 +128,5 @@ def readAll(mainCamera: Camera, count):
         mainCamera.updateView()
 
 
-# print(saveModel(Model(), "Sample"))
+# saveModel(StandardModels().models['cube'], "cube")
+# readModel("cube")

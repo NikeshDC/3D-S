@@ -195,6 +195,8 @@ class InsetC:
 
 
 class TransfVars:
+    defaultLightIntensity = 0.0
+
     def __init__(
         self,
         rotateV=RotateC(),
@@ -204,8 +206,8 @@ class TransfVars:
         insetV=InsetC(),
         LRotateV=RotateC(),
         LTranslateV=TranslateC(),
-        originV=Coord()
-    ) -> None:
+        lightIntensityV=defaultLightIntensity,
+        originV=Coord()) -> None:
 
         self.rotateC = rotateV
         self.translateC = translateV
@@ -214,6 +216,7 @@ class TransfVars:
         self.insetC = insetV
         self.LRotateC = LRotateV
         self.LTranslateC = LTranslateV
+        self.lightIntensity = lightIntensityV
 
         self.originCoord = originV
 

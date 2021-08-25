@@ -1,0 +1,5 @@
+213 = building base
+214 = window left
+215 = pillar
+216 support pillar
+217 = staircase slanted bar
