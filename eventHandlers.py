@@ -29,6 +29,8 @@ class Command:
         self.multiselect = False  #single selection
         self.origin = False  #world origin
         self.extrude = False
+        self.light_translate = False
+        self.light_rotate = False
 
     def processInstruct(self,
                         instructString: list,
@@ -603,7 +605,7 @@ class Command:
                 else:
                     correct = False
                     if (pygame.key.name(instructString[3]) == '-'):
-                        for x in instructString[3:]:
+                        for x in instructString[4:]:
                             if (checkKeys.isDigit(x)) or (
                                     pygame.key.name(x) == '.' and count == 0):
                                 correct = True
@@ -637,6 +639,7 @@ class Command:
                             strManip.makeStr(instructString[3:]))
                         transformationVals.LRotateC.setAngle(rotationAngle)
                 if (correct):
+                    self.light_rotate = True
                     print("Light Rotation about ",
                           transformationVals.LRotateC.getDirection(), " by ",
                           transformationVals.LRotateC.getAngle(), "degree")
@@ -644,7 +647,7 @@ class Command:
                     print("Invalid Instruction Format")
 
             # --------------------------------------------TRANSLATION--------------------------------------------
-            # TRANSLATION COMMAND FORMAT => T[AXIS][VAL[DIST?]]
+            # TRANSLATION COMMAND FORMAT => LT[AXIS][VAL[DIST?]]
 
             elif (pygame.key.name(instructString[1]) == 't'):
                 count = 0
@@ -666,7 +669,7 @@ class Command:
                 else:  #ELIF LEN INS STR = MAX_PRECISION
                     correct = False
                     if (pygame.key.name(instructString[3]) == '-'):
-                        for x in instructString[3:]:
+                        for x in instructString[4:]:
                             if (checkKeys.isDigit(x)) or (
                                     pygame.key.name(x) == '.' and count == 0):
                                 correct = True
@@ -700,6 +703,7 @@ class Command:
                         transformationVals.LTranslateC.setTranslVal(
                             translationVal)
                 if (correct):
+                    self.light_translate = True
                     print("Light Translation in ",
                           transformationVals.LTranslateC.getDirection(),
                           " axis by ",

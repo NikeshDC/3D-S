@@ -79,22 +79,42 @@ def readModel(filename):
         vertexIndexForSurface.append(split(lines[i], ",", int))
 
     model = Model()
-    vertexObjL = []
-    for vertex in vertexL:
-        vertexObjL.append(Vertex(vertex[0], vertex[1], vertex[2]))
-
+    ind = 0
     for surface in vertexIndexForSurface:
-        v1 = vertexObjL[surface[0]]
-        v2 = vertexObjL[surface[1]]
-        v3 = vertexObjL[surface[2]]
+        ind = ind + 1
+        v1 = Vertex(vertexL[surface[0]][0], vertexL[surface[0]][1],
+                    vertexL[surface[0]][2])
+        v2 = Vertex(vertexL[surface[1]][0], vertexL[surface[1]][1],
+                    vertexL[surface[1]][2])
+        v3 = Vertex(vertexL[surface[2]][0], vertexL[surface[2]][1],
+                    vertexL[surface[2]][2])
 
         s = Surface(v1, v2, v3)
         for i in range(3, len(surface)):
-            v = vertexObjL[surface[i]]
+            v = Vertex(vertexL[surface[i]][0], vertexL[surface[i]][1],
+                       vertexL[surface[i]][2])
             s.addVertex(v)
-
+        # TEST --------To check individual surfaces
+        # if (ind == 17):
         model.addSurface(s)
+
+    # TEST --------To check individual surfaces
+    # surface = vertexIndexForSurface[0]
+    # v1 = Vertex(vertexL[surface[0]][0], vertexL[surface[0]][1],
+    #             vertexL[surface[0]][2])
+    # v2 = Vertex(vertexL[surface[1]][0], vertexL[surface[1]][1],
+    #             vertexL[surface[1]][2])
+    # # v2 = Vertex(0.0, 1.0, 0.0)
+    # v3 = Vertex(vertexL[surface[2]][0], vertexL[surface[2]][1],
+    #             vertexL[surface[2]][2])
+    # v4 = Vertex(vertexL[surface[3]][0], vertexL[surface[3]][1],
+    #             vertexL[surface[3]][2])
+    # s = Surface(v1, v2, v3)
+    # s.addVertex(v4)
+    # model.addSurface(s)
+
     return model
 
 
 # print(saveModel(Model(), "Sample"))
+#readModel("sample")
