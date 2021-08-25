@@ -201,6 +201,8 @@ class TransfVars:
         scaleV=ScaleC(),
         extrudeV=ExtrudeC(),
         insetV=InsetC(),
+        LRotateV=RotateC(),
+        LTranslateV=TranslateC(),
         originV=Coord()
     ) -> None:
 
@@ -209,8 +211,31 @@ class TransfVars:
         self.scaleC = scaleV
         self.excrudeC = extrudeV
         self.insetC = insetV
+        self.LRotateC = LRotateV
+        self.LTranslateC = LTranslateV
 
         self.originCoord = originV
+
+
+class Material:
+    defaultSpecRadius = 1
+    defaultColor = (0, 0, 0)
+    defaultSpecConstant = 1
+    defaultAmbient = 1
+    defaultDiffuse = 1
+
+    def __init__(self,
+                 rgbV=defaultColor,
+                 specRadiusV=defaultSpecRadius,
+                 specConstantV=defaultSpecConstant,
+                 ambientV=defaultAmbient,
+                 diffuseV=defaultDiffuse) -> None:
+        self.color = rgbV
+        self.specConstant = specConstantV
+        self.specRadius = specRadiusV
+        self.ambient = ambientV
+        self.diffuse = diffuseV
+        pass
 
 
 def selectAll():

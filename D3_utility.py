@@ -38,6 +38,15 @@ class Transform_matrix:
                                 [-math.sin(angle), math.cos(angle), 0, 0],
                                 [0,                0,               1, 0],
                                 [0,                0,               0, 1]])
+
+    @staticmethod
+    def transform(vertex, tm):
+        v = numpy.array([[vertex.x],
+                         [vertex.y],
+                         [vertex.z],
+                         [1       ]])
+        v = tm.dot(v)
+        vertex.x, vertex.y, vertex.z = v [0][0], v[1][0], v[2][0]
     
 
 class Camera:
@@ -72,6 +81,8 @@ class Camera:
         self.farplane = clippingPlanes[1]
         #z-coordinate of viewing plane for perspective projection
         self.Zvp = viewingPlane                         #projection reference point is at origin of viewing coordinate
+        self.models = []           #object of 'Model' or 'Grid' (having attributes 'Vertices' and 'dispaly')
+        self.display_objects = []  #object having method 'dispaly'
         
         self.constructUVN()
 
@@ -79,14 +90,82 @@ class Camera:
         '''change lookat position'''
         self.lookatpos = (lookatpos[0], lookatpos[1], lookatpos[2])
         self.constructUVN()
-    
+
+    def addModel(self, model):
+        if model not in self.models:
+            self.models.append(model)
+            self.display_objects.append(model)
+
+    def updateView(self):
+        for model in self.models:
+            self.setViewingValues(model.vertices)
+        
     def setviewplane(self,viewplanez: float):
         self.Zvp = viewplanez
 
+    def zoom(self, amount = 0.1):
+        newZvp = self.Zvp + amount
+        for model in self.models:
+            for vertex in model.vertices:
+                vertex.vx, vertex.vy = vertex.vx * newZvp / self.Zvp,  vertex.vy * newZvp / self.Zvp
+        self.Zvp = newZvp
+
+    def dispaly(self, screen):
+        for model in self.display_objects:
+            model.display(screen)
+
+    def rotate(self, rx, ry):
+        #rx is rotation angle about axis in zx plane and perpendicular to 'n'(z-axis)/parallel to uv plane of camera
+        #ry is roatation angle about world-y axis
+##        v = numpy.array([[self.x],
+##                         [self.y],
+##                         [self.z],
+##                         [1     ]])
+        z_axis_angle = math.degrees(math.atan(self.z/self.x))
+        up_rot = Transform_matrix.rotate(-z_axis_angle,'y') .dot(Transform_matrix.rotate(ry,'z').dot(
+                                            Transform_matrix.rotate(z_axis_angle,'y')))
+        #v = Transform_matrix.rotate(rx,'y').dot(up_rot.dot(v))
+        tm = Transform_matrix.rotate(rx,'y').dot(up_rot)
+        Transform_matrix.transform(self, tm)
+##        self.x, self.y, self.z = v[0][0], v[1][0], v[2][0]
+        self.constructUVN()
+        self.updateView()
+        
+        
     def translate(self, tx:float, ty:float, tz:float):
         self.x += tx
         self.y += ty
         self.z += tz
         self.constructUVN()
+        self.updateView()
+
+    def setViewingValues(self, vertices, tm = numpy.array([])):
+        '''sets value of viewing coordinates of vertices list based on the camera W2Vmatrix using optional tranform matrix('tm') provided'''
+        if not isinstance(vertices, list):  #if only a vertex is given, wrap it in list
+            vertices = [vertices]
+            
+        if tm.size > 0:
+            for vertex in vertices:
+                v = numpy.array([[vertex.x],
+                                 [vertex.y],
+                                 [vertex.z],
+                                 [1       ]])
+                v = tm.dot(v)
+                vertex.x, vertex.y, vertex.z = v [0][0], v[1][0], v[2][0]
+                
+                v = self.W2Vm.dot(v)    
+                vertex.vx, vertex.vy, vertex.vz = v [0][0], v[1][0], v[2][0]
+                vertex.vx = vertex.vx * self.Zvp / vertex.vz
+                vertex.vy = vertex.vy * self.Zvp / vertex.vz
+        else:
+            for vertex in vertices:
+                v = numpy.array([[vertex.x],
+                                 [vertex.y],
+                                 [vertex.z],
+                                 [1       ]])
+                v = self.W2Vm.dot(v)    
+                vertex.vx, vertex.vy, vertex.vz = v [0][0], v[1][0], v[2][0]
+                vertex.vx = vertex.vx * self.Zvp / vertex.vz
+                vertex.vy = vertex.vy * self.Zvp / vertex.vz
 
         

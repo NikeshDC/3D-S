@@ -7,6 +7,7 @@ from pygame.font import Font
 from TransfClasses import *
 
 transformationVals = TransfVars()
+mat = Material()
 
 
 # pressedKeys = []
@@ -25,12 +26,16 @@ class Command:
         self.commandWindow = cmnd
         self.rect = self.commandWindow.rect
         self.font = mFont
+        self.multiselect = False  #single selection
+        self.origin = False  #world origin
+        self.extrude = False
 
     def processInstruct(self,
                         instructString: list,
                         selected_surface=None,
                         mainCamera=None,
-                        model=None):
+                        model=None,
+                        selected_surfaces=None):
         # Checking for transformation type
         # Length less than 2 causes index range error
 
@@ -95,10 +100,19 @@ class Command:
                 #       transformationVals.rotateC.getDirection(), " by ",
                 #       transformationVals.rotateC.getAngle(), "degree")
                 #rotating selected surface
-                if selected_surface and mainCamera:
-                    selected_surface.rotate_center(
-                        transformationVals.rotateC.getAngle(),
-                        transformationVals.rotateC.getDirection(), mainCamera)
+                if selected_surface and mainCamera and model and not self.multiselect:
+                    if self.origin:
+                        selected_surface.rotate(
+                            transformationVals.rotateC.getAngle(),
+                            transformationVals.rotateC.getDirection(),
+                            mainCamera)
+                        model.setSurfaceForTransformed()
+                    else:
+                        selected_surface.rotate_center(
+                            transformationVals.rotateC.getAngle(),
+                            transformationVals.rotateC.getDirection(),
+                            mainCamera)
+                        model.setSurfaceForTransformed()
             else:
                 print("Invalid Instruction Format")
 
@@ -162,7 +176,7 @@ class Command:
                 #       " axis by ",
                 #       transformationVals.translateC.getTranslVal())
                 #translating selected surface
-                if selected_surface and mainCamera:
+                if mainCamera and model:
                     tx = 0
                     ty = 0
                     tz = 0
@@ -172,8 +186,13 @@ class Command:
                         ty = transformationVals.translateC.getTranslVal()
                     elif transformationVals.translateC.getDirection() == 'z':
                         tz = transformationVals.translateC.getTranslVal()
-
-                    selected_surface.translate(tx, ty, tz, mainCamera)
+                    if not self.multiselect:
+                        if selected_surface:
+                            selected_surface.translate(tx, ty, tz, mainCamera)
+                            model.setSurfaceForTransformed()
+                    elif selected_surfaces:
+                        model.translate_surfaces(selected_surfaces,
+                                                 (tx, ty, tz), mainCamera)
             else:
                 print("Invalid Instruction Format")
         # --------------------------------------------SCALLING--------------------------------------------
@@ -277,7 +296,7 @@ class Command:
                 #       transformationVals.scaleC.getDirection(), "axis by",
                 #       transformationVals.scaleC.getScaleVal())
                 #scaling selected surface
-                if selected_surface and mainCamera:
+                if mainCamera and model:
                     sx = 1
                     sy = 1
                     sz = 1
@@ -291,8 +310,25 @@ class Command:
                         sx = transformationVals.scaleC.getScaleVal()
                         sy = transformationVals.scaleC.getScaleVal()
                         sz = transformationVals.scaleC.getScaleVal()
+                    if not self.multiselect:
+                        if selected_surface:
+                            if self.origin:
+                                selected_surface.scale(sx, sy, sz, mainCamera)
+                                model.setSurfaceForTransformed()
+                            else:
+                                selected_surface.scale_center(
+                                    sx, sy, sz, mainCamera)
+                                model.setSurfaceForTransformed()
+                    elif selected_surfaces:
+                        if self.origin:
+                            model.scale_surfaces(selected_surfaces,
+                                                 (sx, sy, sz), mainCamera)
+                            model.setSurfaceForTransformed()
+                        else:
+                            model.scale_surfaces_center(
+                                selected_surfaces, (sx, sy, sz), mainCamera)
+                            model.setSurfaceForTransformed()
 
-                    selected_surface.scale_center(sx, sy, sz, mainCamera)
             else:
                 print("Invalid Instruction Format")
         # --------------------------------------------EXTRUDE--------------------------------------------
@@ -403,7 +439,7 @@ class Command:
                                   transformationVals.excrudeC.getExtrudeVal(),
                                   transformationVals.excrudeC.getDirection(),
                                   mainCamera)
-                    selected_surface = None
+                    self.extrude = True
             else:
                 print("Invalid Instruction Format")
 
@@ -433,17 +469,251 @@ class Command:
                     insetVal = InsetC.clamp(insetVal, InsetC.min, InsetC.max)
                     transformationVals.insetC.setInsetVal(insetVal)
             if (correct):
-                #print("Inset by ", transformationVals.insetC.getInsetVal())
+                print("Inset by ", transformationVals.insetC.getInsetVal())
                 if selected_surface and mainCamera and model:
-                    model.inset(selected_surface, transformationVals.insetC.getInsetVal(), mainCamera)
-                    selected_surface = None
+                    model.inset(selected_surface,
+                                transformationVals.insetC.getInsetVal(),
+                                mainCamera)
+                    self.extrude = True
             else:
                 print("Invalid Instruction Format")
+        # --------------------------------------------MATERIAL INPUTS--------------------------------------------
+        elif (pygame.key.name(instructString[0]) == 'm'):
+            # --------------------------------------------MATERIAL RGB VALUE--------------------------------------------
+            if (pygame.key.name(instructString[1]) == 'c'):
+                rgbVals = strManip.getNumbers(instructString[2:], '.')
+                mat.color = (rgbVals[0], rgbVals[1], rgbVals[2])
+                print("Print", rgbVals)
+                pass
+            elif (pygame.key.name(instructString[1]) == 's'):
+                # --------------------------------------------SPECULAR RADIUS--------------------------------------------
+                if (pygame.key.name(instructString[2]) == 'r'):
+                    count = 0
+                    correct = False
+                    if (len(instructString) == 3):
+                        correct = True
+                    elif (len(instructString) > 3):
+                        for x in instructString[3:]:
+                            if (checkKeys.isDigit(x)) or (
+                                    pygame.key.name(x) == '.' and count == 0):
+                                correct = True
+                                if (pygame.key.name(x) == '.'):
+                                    count = 1
+                            else:
+                                correct = False
+                                break
+                        if (correct):
+                            mat.specRadius = float(
+                                strManip.makeStr(instructString[3:]))
+
+                    if (correct):
+                        print("Spec Radius", mat.specRadius)
+                    else:
+                        print("Invalid Instruction Format")
+                # --------------------------------------------SPECULAR CONSTANT--------------------------------------------
+                elif (checkKeys.isDigit(instructString[2])):
+                    count = 0
+                    correct = False
+                    for x in instructString[2:]:
+                        if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
+                                                      and count == 0):
+                            correct = True
+                            if (pygame.key.name(x) == '.'):
+                                count = 1
+                        else:
+                            correct = False
+                            break
+                    if (correct):
+                        mat.specConstant = float(
+                            strManip.makeStr(instructString[2:]))
+                        print("Spec Constant", mat.specConstant)
+                    else:
+                        print("Invalid Instruction Format")
+                else:
+                    print(" hello Invalid Instruction Format")
+            elif (pygame.key.name(instructString[1]) == 'a'):
+                count = 0
+                correct = False
+                if (len(instructString) == 2):
+                    correct = True
+                elif (len(instructString) > 2):
+
+                    for x in instructString[2:]:
+                        if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
+                                                      and count == 0):
+                            correct = True
+                            if (pygame.key.name(x) == '.'):
+                                count = 1
+                        else:
+                            correct = False
+                            break
+                    if (correct):
+                        mat.ambient = float(
+                            strManip.makeStr(instructString[2:]))
+                if (correct):
+                    print("Ambient", mat.ambient)
+                else:
+                    print("Invaclid Instruction Format")
+            elif (pygame.key.name(instructString[1]) == 'd'):
+                count = 0
+                correct = False
+                if (len(instructString) == 2):
+                    correct = True
+                elif (len(instructString) > 2):
+
+                    for x in instructString[2:]:
+                        if (checkKeys.isDigit(x)) or (pygame.key.name(x) == '.'
+                                                      and count == 0):
+                            correct = True
+                            if (pygame.key.name(x) == '.'):
+                                count = 1
+                        else:
+                            correct = False
+                            break
+                    if (correct):
+                        mat.diffuse = float(
+                            strManip.makeStr(instructString[2:]))
+                if (correct):
+                    print("diffuse", mat.diffuse)
+                else:
+                    print("Invaclid Instruction Format")
+
+        # --------------------------------------------LIGHTING--------------------------------------------
+        elif (pygame.key.name(instructString[0]) == 'l'):
+            # --------------------------------------------ROTATION--------------------------------------------
+            # ROTATION COMMAND FORMAT => LR[AXIS][DEGREE]
+            # Minimum command is LR[dir](deg) deg is optional
+            if pygame.key.name(instructString[1]) == 'r':
+                count = 0
+                if (len(instructString) < 3):
+                    correct = False
+                elif (len(instructString) == 3) and checkKeys.isAlpha(
+                        instructString[2]):
+                    correct = True
+                    if checkKeys.isAxesAlpha(pygame.key.name(
+                            instructString[2])):
+                        transformationVals.LRotateC.setDirection(
+                            pygame.key.name(instructString[2]))
+                    else:
+                        print(
+                            "Invalid direction\nSelected Default Direction[x]")
+                        transformationVals.LRotateC.setDirection()
+                    # Setting Default angle
+                    transformationVals.LRotateC.setAngle()
+                else:
+                    correct = False
+                    if (pygame.key.name(instructString[3]) == '-'):
+                        for x in instructString[3:]:
+                            if (checkKeys.isDigit(x)) or (
+                                    pygame.key.name(x) == '.' and count == 0):
+                                correct = True
+                                if (pygame.key.name(x) == '.'):
+                                    count = 1
+                            else:
+                                correct = False
+                                break
+                    else:
+
+                        for x in instructString[3:]:
+                            if (checkKeys.isDigit(x)) or (
+                                    pygame.key.name(x) == '.' and count == 0):
+                                correct = True
+                                if (pygame.key.name(x) == '.'):
+                                    count = 1
+                            else:
+                                correct = False
+                                break
+
+                    if (correct):
+                        if checkKeys.isAxesAlpha(
+                                pygame.key.name(instructString[2])):
+                            transformationVals.LRotateC.setDirection(
+                                pygame.key.name(instructString[2]))
+                        else:
+                            # print(
+                            #     "Invalid direction\nSelected Default Direction[x]")
+                            transformationVals.LRotateC.setDirection()
+                        rotationAngle = float(
+                            strManip.makeStr(instructString[3:]))
+                        transformationVals.LRotateC.setAngle(rotationAngle)
+                if (correct):
+                    print("Light Rotation about ",
+                          transformationVals.LRotateC.getDirection(), " by ",
+                          transformationVals.LRotateC.getAngle(), "degree")
+                else:
+                    print("Invalid Instruction Format")
+
+            # --------------------------------------------TRANSLATION--------------------------------------------
+            # TRANSLATION COMMAND FORMAT => T[AXIS][VAL[DIST?]]
+
+            elif (pygame.key.name(instructString[1]) == 't'):
+                count = 0
+                correct = False
+                if (len(instructString) < 3):
+                    correct = False
+                elif (len(instructString) == 3) and checkKeys.isAlpha(
+                        instructString[2]):
+                    correct = True
+                    if (checkKeys.isAxesAlpha(
+                            pygame.key.name(instructString[2]))):
+                        transformationVals.LTranslateC.setDirection(
+                            pygame.key.name(instructString[2]))
+                    else:
+                        print("Invalid axis\nSelected Default axis[x]")
+                        transformationVals.LTranslateC.setDirection()
+                    # Setting Default Translation Value
+                    transformationVals.LTranslateC.setTranslVal()
+                else:  #ELIF LEN INS STR = MAX_PRECISION
+                    correct = False
+                    if (pygame.key.name(instructString[3]) == '-'):
+                        for x in instructString[3:]:
+                            if (checkKeys.isDigit(x)) or (
+                                    pygame.key.name(x) == '.' and count == 0):
+                                correct = True
+                                if (pygame.key.name(x) == '.'):
+                                    count = 1
+                            else:
+                                correct = False
+                                break
+                    else:
+
+                        for x in instructString[3:]:
+                            if (checkKeys.isDigit(x)) or (
+                                    pygame.key.name(x) == '.' and count == 0):
+                                correct = True
+                                if (pygame.key.name(x) == '.'):
+                                    count = 1
+                            else:
+                                correct = False
+                                break
+
+                    if (correct):
+                        if (checkKeys.isAxesAlpha(
+                                pygame.key.name(instructString[2]))):
+                            transformationVals.LTranslateC.setDirection(
+                                pygame.key.name(instructString[2]))
+                        else:
+                            print("Invalid axis\nSelected Default axis[x]")
+                            transformationVals.LTranslateC.setDirection()
+                        translationVal = float(
+                            strManip.makeStr(instructString[3:]))
+                        transformationVals.LTranslateC.setTranslVal(
+                            translationVal)
+                if (correct):
+                    print("Light Translation in ",
+                          transformationVals.LTranslateC.getDirection(),
+                          " axis by ",
+                          transformationVals.LTranslateC.getTranslVal())
+                    # translating selected surface
+
+                else:
+                    print("Invalid Instruction Format")
 
 
 # -----------------------------------------------------------------------------------------------------------
 
-    def changeToNum(self, eventKey, selected_surface, mainCamera, model):
+    def changeToNum(self, eventKey, selected_surface, mainCamera, model,
+                    selected_surfaces):
         if (eventKey == 1073741922):
             # Numpad 0
             eventK = 48
@@ -458,7 +728,7 @@ class Command:
                 return
             # Enter Key
             self.processInstruct(self.pressedKeys, selected_surface,
-                                 mainCamera, model)
+                                 mainCamera, model, selected_surfaces)
             self.pressedKeys.clear()
             return
         elif (eventKey >= 1073741913 and eventKey <= 1073741921):
@@ -470,7 +740,8 @@ class Command:
                    eventKey,
                    selected_surface=None,
                    mainCamera=None,
-                   model=None):
+                   model=None,
+                   selected_surfaces=None):
         # print(eventKey, " = ", pygame.key.name(eventKey))
 
         # All Command instructions are aplhanumeric
@@ -478,7 +749,7 @@ class Command:
         if (eventKey >= 1073741913 and eventKey <= 1073741923) or (
                 eventKey == 1073741912) or (eventKey == 1073741910):
             eventK = self.changeToNum(eventKey, selected_surface, mainCamera,
-                                      model)
+                                      model, selected_surfaces)
             if (eventKey != 1073741912):
                 self.pressedKeys.append(eventK)
         elif (checkKeys.isAlpha(eventKey) or checkKeys.isDigit(eventKey)
@@ -495,7 +766,7 @@ class Command:
         elif eventKey == pygame.K_RETURN and len(self.pressedKeys) != 0:
             # print(self.pressedKeys)
             self.processInstruct(self.pressedKeys, selected_surface,
-                                 mainCamera, model)
+                                 mainCamera, model, selected_surfaces)
             self.pressedKeys.clear()
         else:
             print("Unfamiliar Input Detected")
@@ -559,45 +830,3 @@ class mouseScrollControl:
             return
         else:
             self.movement = True
-
-        # if (self.movX < 0):
-        #     print("Right to left by ", -self.movX)
-        # elif (self.movX > 0):
-        #     print("Left to Right by ", self.movX)
-        # else:
-        #     print("No horizontal movement")
-        # if (self.movY < 0):
-        #     print("Bottom to Top by ", -self.movY)
-        # elif (self.movY > 0):
-        #     print("Top to Bottom by ", self.movY)
-        # else:
-        #     print("No vertital movement")
-
-
-# def processInstruct(instructString: list):
-
-#     # instructionString format ABXY
-
-#     # AB denotes type of transformation
-#     # XY specify numerical values associated with transformation
-
-#     # for x in instructString:
-#     #     print(pygame.key.name(x))
-
-#     # Checking for transformation type
-#     # Length less than 2 causes index range error
-#     if (len(instructString) > 2 and pygame.key.name(instructString[0]) +
-#             pygame.key.name(instructString[1]) == 'rn'):
-#         print("rotate")
-#         # call roation function with parameters pygame.key.name(instructString[2]) and more
-
-# def keyPressed(eventKey):
-
-#     pressedKeys.append(eventKey)
-#     # print(pressedKeys)
-#     if eventKey == pygame.K_q:
-#         sys.exit()
-
-#     elif eventKey == pygame.K_RETURN:
-#         processInstruct(pressedKeys)
-#         pressedKeys.clear()
