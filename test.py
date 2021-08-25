@@ -30,7 +30,8 @@ m1 = StandardModels().models['cube']
 m1.shading = settings.Shading.GOURAUD
 m1.material.color = (0, 255, 0)
 #models.append(m1)
-
+defaultModel = m1
+selectedModel = defaultModel
 ss = SurfaceSelection()
 l1 = Light(settings.Light.pos, settings.Light.intensity)
 
@@ -133,6 +134,13 @@ while True:
                   or pygame.key.get_pressed()[K_RSHIFT]) and checkKeys.isDigit(
                       event.key):
                 print("select model", strManip.makeStr(pressedNums))
+                mcount = -1
+                for model in mainCamera.models:
+                    if isinstance(model, Model):
+                        mcount = mcount + 1
+                        if (mcount == int(strManip.makeStr(pressedNums))):
+                            selectedModel = model
+                            break
                 pressedNums.clear()
 
             # ALT + N FOR READING/PLACING MODEL
@@ -239,12 +247,14 @@ while True:
 
         screen.fill(settings.Color.bg)
 
-        #drawing cube-model ->surface(selected)
+        # drawing cube-model
+
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == settings.MouseControl.SELECTBUTTON:
             ss.selectable_surfaces.clear()
-            for surface in m1.surfaces:
-                if isInterior(mouse_point, surface.edges):
-                    ss.selectable_surfaces.append(surface)
+            if selectedModel:
+                for surface in selectedModel.surfaces:
+                    if isInterior(mouse_point, surface.edges):
+                        ss.selectable_surfaces.append(surface)
         if not scrollC.selectedList:
             ss.setSelectedSurface(-1)
 
