@@ -745,7 +745,8 @@ class Command:
                    selected_surface=None,
                    mainCamera=None,
                    model=None,
-                   selected_surfaces=None):
+                   selected_surfaces=None,
+                   pressedNums=[]):
         # print(eventKey, " = ", pygame.key.name(eventKey))
 
         # All Command instructions are aplhanumeric
@@ -772,6 +773,7 @@ class Command:
             self.processInstruct(self.pressedKeys, selected_surface,
                                  mainCamera, model, selected_surfaces)
             self.pressedKeys.clear()
+            pressedNums.clear()
         else:
             print("Unfamiliar Input Detected")
 

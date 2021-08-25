@@ -1,29 +1,31 @@
 import pygame
 import sys
+
+from pygame.image import save
 from graphics_utility import Model, Grid, StandardModels, tonormal, topixel, Vertex, SurfaceSelection, Light
 from D3_utility import Camera
 from utility_2d import isInterior
 import numpy
-from pygame.constants import K_LALT, K_LCTRL, K_LSHIFT, K_RALT, K_RCTRL
-from TransfClasses import selectAll, changeOrigin
+from pygame.constants import K_LALT, K_LCTRL, K_LSHIFT, K_RALT, K_RCTRL, K_RSHIFT, K_v
+from TransfClasses import selectAll, changeOrigin, checkKeys, strManip
 from eventHandlers import *
 import time
 import settings
 import saveData
-
-
 
 screen_yc = settings.Window.height - 5
 rendered_view = False
 selected_light = None
 
 pygame.init()
-screen = pygame.display.set_mode((settings.Window.width, settings.Window.height))
+screen = pygame.display.set_mode(
+    (settings.Window.width, settings.Window.height))
 pygame.display.set_caption(settings.Window.title)
 
 #models
 #models = []
-grid = Grid(1.0,10.0,settings.Color.grid, settings.Color.xaxis, settings.Color.zaxis)
+grid = Grid(1.0, 10.0, settings.Color.grid, settings.Color.xaxis,
+            settings.Color.zaxis)
 m1 = StandardModels().models['cube']
 m1.shading = settings.Shading.GOURAUD
 m1.material.color = (0, 255, 0)
@@ -33,9 +35,12 @@ ss = SurfaceSelection()
 l1 = Light(settings.Light.pos, settings.Light.intensity)
 
 #viewing camera
-mainCamera = Camera(settings.Camera.campos, settings.Camera.lookatpos, settings.Camera.clippingplanes, settings.Camera.Vp)
+mainCamera = Camera(settings.Camera.campos, settings.Camera.lookatpos,
+                    settings.Camera.clippingplanes, settings.Camera.Vp)
 mainCamera.addModel(grid)
-mainCamera.addDisplayObject(ss)  #this order of adding model says that first grid is displayed then ss and then m1
+mainCamera.addDisplayObject(
+    ss
+)  #this order of adding model says that first grid is displayed then ss and then m1
 mainCamera.addModel(m1)
 mainCamera.addLight(l1)
 mainCamera.updateView()
@@ -49,13 +54,14 @@ cmdFont = pygame.font.Font('freesansbold.ttf', 20)
 
 # Command window for keyboard commands
 keyCommand = CommandWindow(
-    settings.Color.keyC, pygame.Rect(0, settings.Window.height - 40, settings.Window.width, settings.Window.height - 40))
+    settings.Color.keyC,
+    pygame.Rect(0, settings.Window.height - 40, settings.Window.width,
+                settings.Window.height - 40))
 
 keyP = Command(keyCommand, cmdFont)
 # Mouse scroll control
 scrollC = mouseScrollControl(ss.selectable_surfaces)
-
-
+pressedNums = []
 while True:
     for event in pygame.event.get():
         #mouseclicked = False
@@ -69,7 +75,9 @@ while True:
             else:
                 rendered_view = True
                 screen.fill(settings.Color.renderedbg)
-                mainCamera.z_buffer_rendering(screen, window_minx, window_maxx, window_miny, window_maxy, onePixelToNormal)
+                mainCamera.z_buffer_rendering(screen, window_minx, window_maxx,
+                                              window_miny, window_maxy,
+                                              onePixelToNormal)
                 pygame.display.flip()
                 continue
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -84,12 +92,14 @@ while True:
                     light.selected = False
                     selected_light = None
             mouse_point = tonormal(mousex, mousey)
-            
-        if rendered_view: #no controls in rendered view
+
+        if rendered_view:  #no controls in rendered view
             continue
 
         # KEYBOARD CONTROLS
         if event.type == pygame.KEYDOWN:
+            if (checkKeys.isDigit(event.key)):
+                pressedNums.append(event.key)
             # Application closes if Key 'q' is pressed
             if event.key == pygame.K_q:
                 sys.exit()
@@ -97,6 +107,44 @@ while True:
                   or pygame.key.get_pressed()[K_RCTRL]
                   ) and event.key == pygame.K_a:
                 selectAll()
+            elif (pygame.key.get_pressed()[K_LCTRL]
+                  or pygame.key.get_pressed()[K_RCTRL]
+                  ) and event.key == pygame.K_s:
+                saveData.saveAll(mainCamera)
+            elif (pygame.key.get_pressed()[K_v]) and event.key == pygame.K_r:
+                saveData.readAll(mainCamera, )
+
+            elif (pygame.key.get_pressed()[K_v]
+                  and checkKeys.isDigit(event.key)):
+                print("Read model", strManip.makeStr(pressedNums))
+                saveData.readAll(mainCamera,
+                                 int(strManip.makeStr(pressedNums)))
+                pressedNums.clear()
+            # CTRL + n FOR SAVING MODEL
+            elif (pygame.key.get_pressed()[K_LCTRL]
+                  or pygame.key.get_pressed()[K_RCTRL]) and checkKeys.isDigit(
+                      event.key):
+                print("Save model", pressedNums)
+                saveData.saveModel(m1, strManip.makeStr(pressedNums))
+                pressedNums.clear()
+
+            # SHIFT + n FOR SELECTING MODEL
+            elif (pygame.key.get_pressed()[K_LSHIFT]
+                  or pygame.key.get_pressed()[K_RSHIFT]) and checkKeys.isDigit(
+                      event.key):
+                print("select model", strManip.makeStr(pressedNums))
+                pressedNums.clear()
+
+            # ALT + N FOR READING/PLACING MODEL
+            elif (pygame.key.get_pressed()[K_LALT]
+                  or pygame.key.get_pressed()[K_RALT]) and checkKeys.isDigit(
+                      event.key):
+                print("Read model", strManip.makeStr(pressedNums))
+                m = saveData.readModel(strManip.makeStr(pressedNums))
+                mainCamera.addModel(m)
+                mainCamera.updateView()
+                pressedNums.clear()
+
             elif (event.key == settings.KbControl.ORIGINSELECT):
                 if keyP.origin:
                     keyP.origin = False
@@ -120,12 +168,10 @@ while True:
                     keyP.multiselect = True
                     ss.multiselect = True
                     print("multiselect on")
-            elif event.key == pygame.K_w:
-                saveData.saveModel(m1,"sss")
-            elif event.key >= pygame.K_1 and event.key <= pygame.K_9 and len(keyP.pressedKeys) == 0:
-                print(pygame.key.name(event.key))
             else:
-                keyP.processKey(event.key, ss.selected_surface, mainCamera, m1, ss.selected_surfaces)
+
+                keyP.processKey(event.key, ss.selected_surface, mainCamera, m1,
+                                ss.selected_surfaces, pressedNums)
 
                 if keyP.extrude:
                     ss.selected_surface = None
@@ -136,57 +182,60 @@ while True:
                 elif keyP.light_translate and selected_light:
                     tdir = transformationVals.LTranslateC.getDirection()
                     if tdir == 'x':
-                        tx, ty, tz = transformationVals.LTranslateC.getTranslVal(), 0, 0
+                        tx, ty, tz = transformationVals.LTranslateC.getTranslVal(
+                        ), 0, 0
                     elif tdir == 'y':
-                        tx, ty, tz = 0, transformationVals.LTranslateC.getTranslVal(), 0
+                        tx, ty, tz = 0, transformationVals.LTranslateC.getTranslVal(
+                        ), 0
                     elif tdir == 'z':
-                        tx, ty, tz = 0, 0, transformationVals.LTranslateC.getTranslVal()
-                    selected_light.translate(tx,ty,tz, mainCamera)
+                        tx, ty, tz = 0, 0, transformationVals.LTranslateC.getTranslVal(
+                        )
+                    selected_light.translate(tx, ty, tz, mainCamera)
                     keyP.light_translate = False
                 elif keyP.light_rotate and selected_light:
                     rdir = transformationVals.LRotateC.getDirection()
                     rang = transformationVals.LRotateC.getAngle()
                     selected_light.rotate(rang, rdir, mainCamera)
                     keyP.light_rotate = False
-        
-
 
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == settings.MouseControl.PANBUTTON:
-            prevmousex, prevmousey =  pygame.mouse.get_pos()
+            prevmousex, prevmousey = pygame.mouse.get_pos()
             settings.MouseControl.mousedrag = True
             drag_start = time.time()
         elif event.type == pygame.MOUSEBUTTONUP and event.button == settings.MouseControl.PANBUTTON:
             settings.MouseControl.mousedrag = False
         elif event.type == pygame.MOUSEMOTION and settings.MouseControl.mousedrag == True:
             drag_time = time.time()
-            if (drag_time - drag_start) > settings.MouseControl.drag_time_thres:
+            if (drag_time -
+                    drag_start) > settings.MouseControl.drag_time_thres:
                 drag_start = drag_time
-                curmousex, curmousey =  pygame.mouse.get_pos()
+                curmousex, curmousey = pygame.mouse.get_pos()
                 movx, movy = curmousex - prevmousex, curmousey - prevmousey
                 prevmousex, prevmousey = curmousex, curmousey
                 mx = movx * settings.Camera.rotation_per_pixel
                 my = movy * settings.Camera.rotation_per_pixel
-                mainCamera.rotate(-mx,my)
-
+                mainCamera.rotate(-mx, my)
 
         # Scoll through list
         if not settings.Camera.zoom:
-            if (event.type == pygame.MOUSEBUTTONDOWN) and (event.button == 4 or event.button == 5) and scrollC.selectedList:
+            if (event.type == pygame.MOUSEBUTTONDOWN) and (
+                    event.button == 4
+                    or event.button == 5) and scrollC.selectedList:
                 scrollC.processEvent(event)
                 ss.setSelectedSurface(scrollC.selectedIndex)
         else:
             if (event.type == pygame.MOUSEBUTTONDOWN) and event.button == 4:
-                mainCamera.zoom(settings.Camera.zoom_amount * mainCamera.Zvp / 10)
+                mainCamera.zoom(settings.Camera.zoom_amount * mainCamera.Zvp /
+                                10)
             elif (event.type == pygame.MOUSEBUTTONDOWN) and event.button == 5:
-                mainCamera.zoom(-settings.Camera.zoom_amount * mainCamera.Zvp / 10)
-            
+                mainCamera.zoom(-settings.Camera.zoom_amount * mainCamera.Zvp /
+                                10)
 
         if ss.multiselect and event.type == pygame.MOUSEBUTTONDOWN and event.button == settings.MouseControl.MULTIPLESELECTASSERT and ss.selected_surface:
             if ss.selected_surface in ss.selected_surfaces:
                 ss.selected_surfaces.remove(ss.selected_surface)
             else:
                 ss.setSelectedSurfaces()
-
 
         screen.fill(settings.Color.bg)
 
@@ -198,13 +247,14 @@ while True:
                     ss.selectable_surfaces.append(surface)
         if not scrollC.selectedList:
             ss.setSelectedSurface(-1)
-            
+
         mainCamera.display(screen)
-        
+
         # Command view box
         pygame.draw.rect(screen, keyP.commandWindow.color, keyP.rect)
-        screen.blit(cmdFont.render("Current Command : " + keyP.getPressedKeysStr(), True,
-                           settings.Color.keyFont, settings.Color.keyC), keyP.rect)
-        
-    pygame.display.flip()
+        screen.blit(
+            cmdFont.render("Current Command : " + keyP.getPressedKeysStr(),
+                           True, settings.Color.keyFont, settings.Color.keyC),
+            keyP.rect)
 
+    pygame.display.flip()

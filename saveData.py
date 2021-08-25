@@ -1,5 +1,6 @@
 from pygame import Vector2, surface
 from graphics_utility import Model, Surface, Vertex
+from D3_utility import Camera
 
 
 def split(NStri, separator=",", type=float):
@@ -25,7 +26,6 @@ def saveModel(m1: Model, filename):
     try:
         python_file = open(filename + ".txt", "w")
         surfaceList = [x for x in m1.surfaces]
-        edgeList = [x for x in m1.edges]
         vertexList = [x for x in m1.vertices]
         lengthV = repr(len(vertexList))
         python_file.write(lengthV + "\n")
@@ -79,42 +79,38 @@ def readModel(filename):
         vertexIndexForSurface.append(split(lines[i], ",", int))
 
     model = Model()
-    ind = 0
+    vertexObjL = []
+    for vertex in vertexL:
+        vertexObjL.append(Vertex(vertex[0], vertex[1], vertex[2]))
+
     for surface in vertexIndexForSurface:
-        ind = ind + 1
-        v1 = Vertex(vertexL[surface[0]][0], vertexL[surface[0]][1],
-                    vertexL[surface[0]][2])
-        v2 = Vertex(vertexL[surface[1]][0], vertexL[surface[1]][1],
-                    vertexL[surface[1]][2])
-        v3 = Vertex(vertexL[surface[2]][0], vertexL[surface[2]][1],
-                    vertexL[surface[2]][2])
+        v1 = vertexObjL[surface[0]]
+        v2 = vertexObjL[surface[1]]
+        v3 = vertexObjL[surface[2]]
 
         s = Surface(v1, v2, v3)
         for i in range(3, len(surface)):
-            v = Vertex(vertexL[surface[i]][0], vertexL[surface[i]][1],
-                       vertexL[surface[i]][2])
+            v = vertexObjL[surface[i]]
             s.addVertex(v)
-        # TEST --------To check individual surfaces
-        # if (ind == 17):
+
         model.addSurface(s)
-
-    # TEST --------To check individual surfaces
-    # surface = vertexIndexForSurface[0]
-    # v1 = Vertex(vertexL[surface[0]][0], vertexL[surface[0]][1],
-    #             vertexL[surface[0]][2])
-    # v2 = Vertex(vertexL[surface[1]][0], vertexL[surface[1]][1],
-    #             vertexL[surface[1]][2])
-    # # v2 = Vertex(0.0, 1.0, 0.0)
-    # v3 = Vertex(vertexL[surface[2]][0], vertexL[surface[2]][1],
-    #             vertexL[surface[2]][2])
-    # v4 = Vertex(vertexL[surface[3]][0], vertexL[surface[3]][1],
-    #             vertexL[surface[3]][2])
-    # s = Surface(v1, v2, v3)
-    # s.addVertex(v4)
-    # model.addSurface(s)
-
     return model
 
 
+def saveAll(mainCamera: Camera):
+    count = 0
+    for model in mainCamera.models:
+        if isinstance(model, Model):
+            saveModel(model, str(count))
+            count = count + 1
+
+
+def readAll(mainCamera: Camera, count):
+
+    for x in range(count):
+        m = readModel(str(x))
+        mainCamera.addModel(m)
+        mainCamera.updateView()
+
+
 # print(saveModel(Model(), "Sample"))
-#readModel("sample")
