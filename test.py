@@ -1,5 +1,6 @@
 import pygame
 import sys
+from pygame import key
 
 from pygame.image import save
 from graphics_utility import Model, Grid, StandardModels, tonormal, topixel, Vertex, SurfaceSelection, Light
@@ -112,8 +113,6 @@ while True:
                   or pygame.key.get_pressed()[K_RCTRL]
                   ) and event.key == pygame.K_s:
                 saveData.saveAll(mainCamera)
-            elif (pygame.key.get_pressed()[K_v]) and event.key == pygame.K_r:
-                saveData.readAll(mainCamera, )
 
             elif (pygame.key.get_pressed()[K_v]
                   and checkKeys.isDigit(event.key)):
@@ -121,12 +120,19 @@ while True:
                 saveData.readAll(mainCamera,
                                  int(strManip.makeStr(pressedNums)))
                 pressedNums.clear()
+            elif (event.key == pygame.K_TAB):
+                if ss.selected_surface:
+                    mainCamera.lookat((ss.selected_surface.center_x,
+                                       ss.selected_surface.center_y,
+                                       ss.selected_surface.center_z))
+
             # CTRL + n FOR SAVING MODEL
             elif (pygame.key.get_pressed()[K_LCTRL]
                   or pygame.key.get_pressed()[K_RCTRL]) and checkKeys.isDigit(
                       event.key):
                 print("Save model", pressedNums)
-                saveData.saveModel(m1, strManip.makeStr(pressedNums))
+                saveData.saveModel(selectedModel,
+                                   strManip.makeStr(pressedNums))
                 pressedNums.clear()
 
             # SHIFT + n FOR SELECTING MODEL
@@ -152,6 +158,14 @@ while True:
                 mainCamera.addModel(m)
                 mainCamera.updateView()
                 pressedNums.clear()
+            # ALT + N FOR READING/PLACING MODEL
+            elif (pygame.key.get_pressed()[K_LALT]
+                  or pygame.key.get_pressed()[K_RALT]
+                  ) and event.key == pygame.K_n:
+
+                m = StandardModels().models['cube']
+                mainCamera.addModel(m)
+                mainCamera.updateView()
 
             elif (event.key == settings.KbControl.ORIGINSELECT):
                 if keyP.origin:
@@ -178,8 +192,9 @@ while True:
                     print("multiselect on")
             else:
 
-                keyP.processKey(event.key, ss.selected_surface, mainCamera, m1,
-                                ss.selected_surfaces, pressedNums)
+                keyP.processKey(event.key, ss.selected_surface, mainCamera,
+                                selectedModel, ss.selected_surfaces,
+                                pressedNums)
 
                 if keyP.extrude:
                     ss.selected_surface = None
@@ -206,18 +221,23 @@ while True:
                     selected_light.rotate(rang, rdir, mainCamera)
                     keyP.light_rotate = False
                 elif keyP.light_intensity and selected_light:
-                    selected_light.intensity = transformationVals.lightIntensity
+                    selected_light.i = transformationVals.lightIntensity
                     keyP.light_intensity = False
                 elif keyP.material_color and selectedModel:
                     selectedModel.material.color = mat.color
+                    keyP.material_color = False
                 elif keyP.material_ambient and selectedModel:
                     selectedModel.material.ka = mat.ambient
+                    keyP.material_ambient = False
                 elif keyP.material_diffuse and selectedModel:
                     selectedModel.material.kd = mat.diffuse
+                    keyP.material_diffuse = False
                 elif keyP.material_specular_radius and selectedModel:
                     selectedModel.material.ns = mat.specRadius
+                    keyP.material_specular_radius = False
                 elif keyP.material_specular_constant and selectedModel:
                     selectedModel.material.ks = mat.specConstant
+                    keyP.material_specular_constant = False
 
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == settings.MouseControl.PANBUTTON:
             prevmousex, prevmousey = pygame.mouse.get_pos()

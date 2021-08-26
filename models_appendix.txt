@@ -3,3 +3,6 @@
 215 = pillar
 216 support pillar
 217 = staircase slanted bar
+
+51 = grey base of road
+52 = burger stand
