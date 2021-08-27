@@ -6,7 +6,7 @@
 
 210 = stand upper circle
 
-208 wall
+555 wall
 
 51 = grey base of road
 52 = burger stand base

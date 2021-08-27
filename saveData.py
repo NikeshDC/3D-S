@@ -124,9 +124,9 @@ def saveAll(mainCamera: Camera):
             count = count + 1
 
 
-def readAll(mainCamera: Camera, count):
+def readAll(mainCamera: Camera, count, begCount=0):
 
-    for x in range(count):
+    for x in range(begCount, begCount + count):
         m = readModel(str(x))
         mainCamera.addModel(m)
         mainCamera.updateView()

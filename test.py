@@ -118,7 +118,7 @@ while True:
                   and checkKeys.isDigit(event.key)):
                 print("Read model", strManip.makeStr(pressedNums))
                 saveData.readAll(mainCamera,
-                                 int(strManip.makeStr(pressedNums)))
+                                 int(strManip.makeStr(pressedNums)), 50)
                 pressedNums.clear()
             elif (event.key == pygame.K_TAB):
                 if ss.selected_surface:
