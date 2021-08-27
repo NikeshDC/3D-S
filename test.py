@@ -122,9 +122,9 @@ while True:
                 pressedNums.clear()
             elif (event.key == pygame.K_TAB):
                 if ss.selected_surface:
-                    mainCamera.lookat((ss.selected_surface.center_x,
-                                       ss.selected_surface.center_y,
-                                       ss.selected_surface.center_z))
+                    mainCamera.lookat((ss.selected_surface.center.x,
+                                       ss.selected_surface.center.y,
+                                       ss.selected_surface.center.z))
 
             # CTRL + n FOR SAVING MODEL
             elif (pygame.key.get_pressed()[K_LCTRL]

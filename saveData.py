@@ -69,47 +69,51 @@ def saveModel(m1: Model, filename):
 
 
 def readModel(filename):
-    p_file = open(filename + ".txt", "r")
-    lines = p_file.readlines()
+    try:
+        p_file = open(filename + ".txt", "r")
+        lines = p_file.readlines()
 
-    lenVertexList = int(lines[0])
-    lenSurfaceList = int(lines[lenVertexList + 1])
+        lenVertexList = int(lines[0])
+        lenSurfaceList = int(lines[lenVertexList + 1])
 
-    # Vertex co-ordinates
-    vertexL = []
-    for i in range(1, lenVertexList + 1):
-        vertexL.append(split(lines[i], ","))
+        # Vertex co-ordinates
+        vertexL = []
+        for i in range(1, lenVertexList + 1):
+            vertexL.append(split(lines[i], ","))
 
-    # Surface-wise Vertex indices
-    vertexIndexForSurface = []
-    for i in range(lenVertexList + 2, lenVertexList + lenSurfaceList + 2):
-        vertexIndexForSurface.append(split(lines[i], ",", int))
-    materialColor = split(lines[-2], ",", int)
-    materialVals = split(lines[-1], ",", float)
-    print(materialColor, materialVals)
-    model = Model()
-    vertexObjL = []
-    for vertex in vertexL:
-        vertexObjL.append(Vertex(vertex[0], vertex[1], vertex[2]))
+        # Surface-wise Vertex indices
+        vertexIndexForSurface = []
+        for i in range(lenVertexList + 2, lenVertexList + lenSurfaceList + 2):
+            vertexIndexForSurface.append(split(lines[i], ",", int))
+        materialColor = split(lines[-2], ",", int)
+        materialVals = split(lines[-1], ",", float)
+        print(materialColor, materialVals)
+        model = Model()
+        vertexObjL = []
+        for vertex in vertexL:
+            vertexObjL.append(Vertex(vertex[0], vertex[1], vertex[2]))
 
-    for surface in vertexIndexForSurface:
-        v1 = vertexObjL[surface[0]]
-        v2 = vertexObjL[surface[1]]
-        v3 = vertexObjL[surface[2]]
+        for surface in vertexIndexForSurface:
+            v1 = vertexObjL[surface[0]]
+            v2 = vertexObjL[surface[1]]
+            v3 = vertexObjL[surface[2]]
 
-        s = Surface(v1, v2, v3)
-        for i in range(3, len(surface)):
-            v = vertexObjL[surface[i]]
-            s.addVertex(v)
+            s = Surface(v1, v2, v3)
+            for i in range(3, len(surface)):
+                v = vertexObjL[surface[i]]
+                s.addVertex(v)
 
-        model.addSurface(s)
-    model.material.color = (materialColor[0], materialColor[1],
-                            materialColor[2])
-    model.material.ka = materialVals[0]
-    model.material.kd = materialVals[1]
-    model.material.ks = materialVals[2]
-    model.material.ns = materialVals[3]
-    return model
+            model.addSurface(s)
+        model.material.color = (materialColor[0], materialColor[1],
+                                materialColor[2])
+        model.material.ka = materialVals[0]
+        model.material.kd = materialVals[1]
+        model.material.ks = materialVals[2]
+        model.material.ns = materialVals[3]
+        return model
+    except:
+        pass
+        return StandardModels().models['cube']
 
 
 def saveAll(mainCamera: Camera):
