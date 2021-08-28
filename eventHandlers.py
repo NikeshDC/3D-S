@@ -541,7 +541,7 @@ class Command:
                     else:
                         print("Invalid Instruction Format")
                 else:
-                    print(" hello Invalid Instruction Format")
+                    print("Invalid Instruction Format")
             elif (pygame.key.name(instructString[1]) == 'a'):
                 count = 0
                 correct = False
@@ -565,7 +565,7 @@ class Command:
                     print("Ambient", mat.ambient)
                     self.material_ambient = True
                 else:
-                    print("Invaclid Instruction Format")
+                    print("Invalid Instruction Format")
             elif (pygame.key.name(instructString[1]) == 'd'):
                 count = 0
                 correct = False
@@ -738,6 +738,7 @@ class Command:
                 if (correct):
                     transformationVals.lightIntensity = float(
                         strManip.makeStr(instructString[2:]))
+                    self.light_intensity = True
 
                     print("Intensity  = ", transformationVals.lightIntensity)
                 else:

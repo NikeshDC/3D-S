@@ -10,3 +10,5 @@
 
 51 = grey base of road
 52 = burger stand base
+
+70,71 WINDOW BORDERS

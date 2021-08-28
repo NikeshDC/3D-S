@@ -1,13 +1,14 @@
 import pygame
 import sys
 from pygame import key
+from pygame import fastevent
 
 from pygame.image import save
 from graphics_utility import Model, Grid, StandardModels, tonormal, topixel, Vertex, SurfaceSelection, Light
 from D3_utility import Camera
 from utility_2d import isInterior
 import numpy
-from pygame.constants import K_LALT, K_LCTRL, K_LSHIFT, K_RALT, K_RCTRL, K_RSHIFT, K_v
+from pygame.constants import K_DELETE, K_F1, K_LALT, K_LCTRL, K_LSHIFT, K_RALT, K_RCTRL, K_RSHIFT, K_v
 from TransfClasses import selectAll, changeOrigin, checkKeys, strManip
 from eventHandlers import *
 import time
@@ -25,8 +26,8 @@ pygame.display.set_caption(settings.Window.title)
 
 #models
 #models = []
-grid = Grid(1.0, 10.0, settings.Color.grid, settings.Color.xaxis,
-            settings.Color.zaxis)
+grid = Grid(settings.Grid.SPACING, settings.Grid.SPAN, settings.Color.grid,
+            settings.Color.xaxis, settings.Color.zaxis)
 m1 = StandardModels().models['cube']
 m1.shading = settings.Shading.GOURAUD
 m1.material.color = (0, 255, 0)
@@ -34,7 +35,6 @@ m1.material.color = (0, 255, 0)
 defaultModel = m1
 selectedModel = defaultModel
 ss = SurfaceSelection()
-l1 = Light(settings.Light.pos, settings.Light.intensity)
 
 #viewing camera
 mainCamera = Camera(settings.Camera.campos, settings.Camera.lookatpos,
@@ -44,12 +44,14 @@ mainCamera.addDisplayObject(
     ss
 )  #this order of adding model says that first grid is displayed then ss and then m1
 mainCamera.addModel(m1)
-mainCamera.addLight(l1)
+for pos in settings.Light.pos:
+    l = Light(pos, settings.Light.intensity)
+    mainCamera.addLight(l)
 mainCamera.updateView()
 
 onePixelToNormal = 2 / settings.Window.xy
-window_minx, window_miny = tonormal(0, settings.Window.height)
-window_maxx, window_maxy = tonormal(settings.Window.width, 0)
+window_minx, window_miny = tonormal(1, settings.Window.height - 5)
+window_maxx, window_maxy = tonormal(settings.Window.width - 5, 1)
 
 # font for key command
 cmdFont = pygame.font.Font('freesansbold.ttf', 20)
@@ -83,16 +85,19 @@ while True:
                 pygame.display.flip()
                 continue
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+
             mousex, mousey = pygame.mouse.get_pos()
+            for light in mainCamera.lights:
+                light.selected = False
+                selected_light = None
+
             for light in mainCamera.lights:
                 if light.checkPoint():
                     selected_light = light
                     light.selected = True
                     #print("selected")
                     break
-                else:
-                    light.selected = False
-                    selected_light = None
+
             mouse_point = tonormal(mousex, mousey)
 
         if rendered_view:  #no controls in rendered view
@@ -120,6 +125,7 @@ while True:
                 saveData.readAll(mainCamera,
                                  int(strManip.makeStr(pressedNums)), 50)
                 pressedNums.clear()
+                keyP.pressedKeys.clear()
             elif (event.key == pygame.K_TAB):
                 if ss.selected_surface:
                     mainCamera.lookat((ss.selected_surface.center.x,
@@ -134,7 +140,18 @@ while True:
                 saveData.saveModel(selectedModel,
                                    strManip.makeStr(pressedNums))
                 pressedNums.clear()
+                keyP.pressedKeys.clear()
+            elif event.key == K_DELETE and selectedModel:
 
+                mainCamera.display_objects.remove(selectedModel)
+                mainCamera.models.remove(selectedModel)
+                selectedModel = None
+                ss.selected_surface = None
+                ss.selectable_surfaces.clear()
+                ss.selected_surfaces.clear()
+            elif event.key == K_F1 and selectedModel:
+                selectedModel.shading += 1
+                selectedModel.shading %= settings.Shading.NUMBER
             # SHIFT + n FOR SELECTING MODEL
             elif (pygame.key.get_pressed()[K_LSHIFT]
                   or pygame.key.get_pressed()[K_RSHIFT]) and checkKeys.isDigit(
@@ -148,6 +165,7 @@ while True:
                             selectedModel = model
                             break
                 pressedNums.clear()
+                keyP.pressedKeys.clear()
 
             # ALT + N FOR READING/PLACING MODEL
             elif (pygame.key.get_pressed()[K_LALT]
@@ -158,6 +176,7 @@ while True:
                 mainCamera.addModel(m)
                 mainCamera.updateView()
                 pressedNums.clear()
+                keyP.pressedKeys.clear()
             # ALT + N FOR READING/PLACING MODEL
             elif (pygame.key.get_pressed()[K_LALT]
                   or pygame.key.get_pressed()[K_RALT]
@@ -221,22 +240,25 @@ while True:
                     selected_light.rotate(rang, rdir, mainCamera)
                     keyP.light_rotate = False
                 elif keyP.light_intensity and selected_light:
-                    selected_light.i = transformationVals.lightIntensity
+                    selected_light.setIntensity(
+                        transformationVals.lightIntensity)
                     keyP.light_intensity = False
                 elif keyP.material_color and selectedModel:
-                    selectedModel.material.color = mat.color
+                    selectedModel.material.setColor(mat.color[0], mat.color[1],
+                                                    mat.color[2])
                     keyP.material_color = False
+                    print("model no.:", mainCamera.models.index(selectedModel))
                 elif keyP.material_ambient and selectedModel:
-                    selectedModel.material.ka = mat.ambient
+                    selectedModel.material.setKa(mat.ambient)
                     keyP.material_ambient = False
                 elif keyP.material_diffuse and selectedModel:
-                    selectedModel.material.kd = mat.diffuse
+                    selectedModel.material.setKd(mat.diffuse)
                     keyP.material_diffuse = False
                 elif keyP.material_specular_radius and selectedModel:
-                    selectedModel.material.ns = mat.specRadius
+                    selectedModel.material.setNs(mat.specRadius)
                     keyP.material_specular_radius = False
                 elif keyP.material_specular_constant and selectedModel:
-                    selectedModel.material.ks = mat.specConstant
+                    selectedModel.material.setKs(mat.specConstant)
                     keyP.material_specular_constant = False
 
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == settings.MouseControl.PANBUTTON:

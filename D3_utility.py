@@ -165,6 +165,9 @@ class Camera:
                            scanline_max_x=100,
                            max_depth=-100):
         start_time = time.time()
+        for model in self.models:
+            if isinstance(model, Model):
+                print("dsf", model.material.color)
         #initially set default depth to 1/max_depth and intesity to background intensity
         self.back_face_detection()
         init_z_inv = 1 / max_depth
@@ -202,40 +205,48 @@ class Camera:
                         svx = surface.vertices[0].vx * svz / self.Zvp
                         svy = surface.vertices[0].vy * svz / self.Zvp
                         d = -(a * svx + b * svy + c * svz)
-                        lvec = [
-                            self.lights[0].x - surface.center.x,
-                            self.lights[0].y - surface.center.y,
-                            self.lights[0].z - surface.center.z
-                        ]
-                        ldotn = (lvec[0] * surface.a + lvec[1] * surface.b +
-                                 lvec[2] * surface.c)
-                        norm_ldotn = math.sqrt(lvec[0] * lvec[0] +
-                                               lvec[1] * lvec[1] +
-                                               lvec[2] * lvec[2])
-                        ldotn = ldotn / norm_ldotn
-                        diff_intensity = max((ldotn * model.material.kd), 0)
+                        intensity = Light.ia * model.material.ka
+                        for light in self.lights:
 
-                        vvec = [
-                            self.x - surface.center.x,
-                            self.y - surface.center.y,
-                            self.z - surface.center.z
-                        ]
-                        h = (lvec[0] + vvec[0], lvec[1] + vvec[1],
-                             lvec[2] + vvec[2])
-                        hdotn = (h[0] * surface.a + h[1] * surface.b +
-                                 h[2] * surface.c)
-                        norm_hdotn = math.sqrt(h[0] * h[0] + h[1] * h[1] +
-                                               h[2] * h[2])
-                        hdotn = hdotn / norm_hdotn
-                        spec_intensity = max(
-                            model.material.ks * (hdotn**model.material.ns), 0)
+                            lvec = [
+                                light.x - surface.center.x,
+                                light.y - surface.center.y,
+                                light.z - surface.center.z
+                            ]
+                            ldotn = (lvec[0] * surface.a +
+                                     lvec[1] * surface.b + lvec[2] * surface.c)
+                            norm_ldotn = math.sqrt(lvec[0] * lvec[0] +
+                                                   lvec[1] * lvec[1] +
+                                                   lvec[2] * lvec[2])
+                            ldotn = ldotn / norm_ldotn
+                            diff_intensity = max((ldotn * model.material.kd),
+                                                 0)
 
-                        dist = lvec[0] * lvec[0] + lvec[1] * lvec[1] + lvec[
-                            2] * lvec[2]
+                            vvec = [
+                                self.x - surface.center.x,
+                                self.y - surface.center.y,
+                                self.z - surface.center.z
+                            ]
+                            h = (lvec[0] + vvec[0], lvec[1] + vvec[1],
+                                 lvec[2] + vvec[2])
+                            hdotn = (h[0] * surface.a + h[1] * surface.b +
+                                     h[2] * surface.c)
+                            norm_hdotn = math.sqrt(h[0] * h[0] + h[1] * h[1] +
+                                                   h[2] * h[2])
+                            hdotn = hdotn / norm_hdotn
+                            spec_intensity = max(
+                                model.material.ks * (hdotn**model.material.ns),
+                                0)
 
-                        intensity = Light.ia * model.material.kd + self.lights[
-                            0].i * (diff_intensity + spec_intensity) / (
-                                Light.a0 + Light.a2 * dist)
+                            dist = lvec[0] * lvec[0] + lvec[1] * lvec[
+                                1] + lvec[2] * lvec[2]
+
+                            intensity += light.i * (
+                                diff_intensity +
+                                spec_intensity) / (Light.a0 + Light.a2 * dist)
+                        # print(model.material.color)
+                        # print(model.material.ka)
+                        # print(model.material.kd)
                         _color = (int(
                             min(model.material.color[0] * intensity,
                                 Light.mpv)),
@@ -282,10 +293,14 @@ class Camera:
                             #finding minimum x-position to start drawing from
                             while min_x < window_min_x:
                                 min_index += 1
+                                if min_index >= len(intersected_points):
+                                    break
                                 min_x = intersected_points[min_index]
                             #finding maximum x-position to stop drawing at
                             while max_x > window_max_x:
                                 max_index += 1
+                                if n - max_index < 0:
+                                    break
                                 max_x = intersected_points[n - max_index]
 
                             if min_index > (n - max_index):
@@ -329,10 +344,13 @@ class Camera:
                                 while cur_pix_x <= next_pix_x:
                                     z_index = cur_pix_x * window_del_y + cur_pix_y
                                     #print(z_index)
-                                    if z_inv < z_buffer[z_index]:
-                                        z_buffer[z_index] = z_inv
-                                        screen.set_at((cur_pix_x, cur_pix_y),
-                                                      _color)
+                                    try:
+                                        if z_inv < z_buffer[z_index]:
+                                            z_buffer[z_index] = z_inv
+                                            screen.set_at(
+                                                (cur_pix_x, cur_pix_y), _color)
+                                    except Exception as e:
+                                        print(cur_pix_x, cur_pix_y)
                                     z_inv += k
                                     cur_pix_x += 1
                                     cur_x += onePixelInNormal
@@ -343,41 +361,44 @@ class Camera:
                 elif model.shading == Shading.GOURAUD:
                     model.setVertexNormals()
                     for vertex in model.vertices:  #setting vertex intensities
-                        lvec = [
-                            self.lights[0].x - vertex.x,
-                            self.lights[0].y - vertex.y,
-                            self.lights[0].z - vertex.z
-                        ]
-                        ldotn = (lvec[0] * vertex.normal[0] +
-                                 lvec[1] * vertex.normal[1] +
-                                 lvec[2] * vertex.normal[2])
-                        norm_ldotn = math.sqrt(lvec[0] * lvec[0] +
-                                               lvec[1] * lvec[1] +
-                                               lvec[2] * lvec[2])
-                        ldotn = ldotn / norm_ldotn
-                        diff_intensity = max((ldotn * model.material.kd), 0)
+                        vertex.intensity = Light.ia * model.material.kd
+                        for light in self.lights:
+                            lvec = [
+                                light.x - vertex.x, light.y - vertex.y,
+                                light.z - vertex.z
+                            ]
+                            ldotn = (lvec[0] * vertex.normal[0] +
+                                     lvec[1] * vertex.normal[1] +
+                                     lvec[2] * vertex.normal[2])
+                            norm_ldotn = math.sqrt(lvec[0] * lvec[0] +
+                                                   lvec[1] * lvec[1] +
+                                                   lvec[2] * lvec[2])
+                            ldotn = ldotn / norm_ldotn
+                            diff_intensity = max((ldotn * model.material.kd),
+                                                 0)
 
-                        vvec = [
-                            self.x - vertex.x, self.y - vertex.y,
-                            self.z - vertex.z
-                        ]
-                        h = (lvec[0] + vvec[0], lvec[1] + vvec[1],
-                             lvec[2] + vvec[2])
-                        hdotn = (h[0] * vertex.normal[0] +
-                                 h[1] * vertex.normal[1] +
-                                 h[2] * vertex.normal[2])
-                        norm_hdotn = math.sqrt(h[0] * h[0] + h[1] * h[1] +
-                                               h[2] * h[2])
-                        hdotn = hdotn / norm_hdotn
-                        spec_intensity = max(
-                            model.material.ks * (hdotn**model.material.ns), 0)
+                            vvec = [
+                                self.x - vertex.x, self.y - vertex.y,
+                                self.z - vertex.z
+                            ]
+                            h = (lvec[0] + vvec[0], lvec[1] + vvec[1],
+                                 lvec[2] + vvec[2])
+                            hdotn = (h[0] * vertex.normal[0] +
+                                     h[1] * vertex.normal[1] +
+                                     h[2] * vertex.normal[2])
+                            norm_hdotn = math.sqrt(h[0] * h[0] + h[1] * h[1] +
+                                                   h[2] * h[2])
+                            hdotn = hdotn / norm_hdotn
+                            spec_intensity = max(
+                                model.material.ks * (hdotn**model.material.ns),
+                                0)
 
-                        dist = lvec[0] * lvec[0] + lvec[1] * lvec[1] + lvec[
-                            2] * lvec[2]
+                            dist = lvec[0] * lvec[0] + lvec[1] * lvec[
+                                1] + lvec[2] * lvec[2]
 
-                        vertex.intensity = Light.ia * model.material.kd + self.lights[
-                            0].i * (diff_intensity + spec_intensity) / (
-                                Light.a0 + Light.a2 * dist)
+                            vertex.intensity += light.i * (
+                                diff_intensity +
+                                spec_intensity) / (Light.a0 + Light.a2 * dist)
 
                     for surface in model.surfaces:  #gouraud shading
                         if surface.backface:

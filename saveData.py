@@ -3,6 +3,8 @@ from pygame import Vector2, surface
 from graphics_utility import Model, StandardModels, Surface, Vertex
 from D3_utility import Camera
 
+model_path = "./Models/"
+
 
 def split(NStri, separator=",", type=float):
     separatedList = []
@@ -25,7 +27,7 @@ def saveModel(m1: Model, filename):
     status = True
     indexList = []
     try:
-        python_file = open(filename + ".txt", "w")
+        python_file = open(model_path + filename + ".txt", "w")
         surfaceList = [x for x in m1.surfaces]
         vertexList = [x for x in m1.vertices]
         lengthV = repr(len(vertexList))
@@ -70,7 +72,7 @@ def saveModel(m1: Model, filename):
 
 def readModel(filename):
     try:
-        p_file = open(filename + ".txt", "r")
+        p_file = open(model_path + filename + ".txt", "r")
         lines = p_file.readlines()
 
         lenVertexList = int(lines[0])
@@ -87,7 +89,7 @@ def readModel(filename):
             vertexIndexForSurface.append(split(lines[i], ",", int))
         materialColor = split(lines[-2], ",", int)
         materialVals = split(lines[-1], ",", float)
-        print(materialColor, materialVals)
+        # print(materialColor, materialVals)
         model = Model()
         vertexObjL = []
         for vertex in vertexL:
@@ -104,12 +106,19 @@ def readModel(filename):
                 s.addVertex(v)
 
             model.addSurface(s)
-        model.material.color = (materialColor[0], materialColor[1],
+        # model.material.color = (materialColor[0], materialColor[1],
+        #                         materialColor[2])
+        # model.material.ka = materialVals[0]
+        # model.material.kd = materialVals[1]
+        # model.material.ks = materialVals[2]
+        # model.material.ns = materialVals[3]
+        model.material.setColor(materialColor[0], materialColor[1],
                                 materialColor[2])
-        model.material.ka = materialVals[0]
-        model.material.kd = materialVals[1]
-        model.material.ks = materialVals[2]
-        model.material.ns = materialVals[3]
+        model.material.setKa(materialVals[0])
+        model.material.setKd(materialVals[1])
+        model.material.setKs(materialVals[2])
+        model.material.setNs(materialVals[3])
+        # print(model.material.color)
         return model
     except:
         pass
@@ -130,6 +139,8 @@ def readAll(mainCamera: Camera, count, begCount=0):
         m = readModel(str(x))
         mainCamera.addModel(m)
         mainCamera.updateView()
+    # mainCamera.models[10].material.setColor(99, 99, 99)
+    # mainCamera.models[10].shading = 1
 
 
 # saveModel(StandardModels().models['cube'], "cube")

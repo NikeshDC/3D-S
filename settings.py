@@ -1,13 +1,21 @@
 class Window:
     title = "3DS"
-    width = 1000
-    height = 600
-    xy = min(width, height)
+    width = 1200
+    height = 800
+    # xy = min(width, height)
+    xy = 300
+
+
+class Grid:
+    SPAN = 15.0
+    SPACING = 1.0
 
 
 class Shading:
     FLAT = 0
     GOURAUD = 1
+    # PHONG = 2
+    NUMBER = 2
 
 
 class MouseControl:
@@ -45,7 +53,8 @@ class Camera:
 
 
 class Light:
-    pos = (2, 7, 2)
+    pos = [(2, 7, 2), (-5, 5, 10)]
+
     intensity = 10
     #direction = ()
     mpv = 250  #maximum pixel value for models
