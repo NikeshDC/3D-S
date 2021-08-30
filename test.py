@@ -25,6 +25,7 @@ screen = pygame.display.set_mode(
 pygame.display.set_caption(settings.Window.title)
 
 #models
+MODEL_BEG = 0
 #models = []
 grid = Grid(settings.Grid.SPACING, settings.Grid.SPAN, settings.Color.grid,
             settings.Color.xaxis, settings.Color.zaxis)
@@ -63,6 +64,7 @@ keyCommand = CommandWindow(
                 settings.Window.height - 40))
 
 keyP = Command(keyCommand, cmdFont)
+
 # Mouse scroll control
 scrollC = mouseScrollControl(ss.selectable_surfaces)
 pressedNums = []
@@ -123,7 +125,7 @@ while True:
                   and checkKeys.isDigit(event.key)):
                 print("Read model", strManip.makeStr(pressedNums))
                 saveData.readAll(mainCamera,
-                                 int(strManip.makeStr(pressedNums)), 50)
+                                 int(strManip.makeStr(pressedNums)), MODEL_BEG)
                 pressedNums.clear()
                 keyP.pressedKeys.clear()
             elif (event.key == pygame.K_TAB):
