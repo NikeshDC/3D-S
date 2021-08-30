@@ -25,7 +25,7 @@ screen = pygame.display.set_mode(
 pygame.display.set_caption(settings.Window.title)
 
 #models
-MODEL_BEG = 0
+MODEL_BEG = 50
 #models = []
 grid = Grid(settings.Grid.SPACING, settings.Grid.SPAN, settings.Color.grid,
             settings.Color.xaxis, settings.Color.zaxis)
@@ -138,7 +138,7 @@ while True:
             elif (pygame.key.get_pressed()[K_LCTRL]
                   or pygame.key.get_pressed()[K_RCTRL]) and checkKeys.isDigit(
                       event.key):
-                print("Save model", pressedNums)
+                print("Save model", strManip.makeStr(pressedNums))
                 saveData.saveModel(selectedModel,
                                    strManip.makeStr(pressedNums))
                 pressedNums.clear()

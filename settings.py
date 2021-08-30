@@ -21,11 +21,11 @@ class Shading:
 class MouseControl:
     mousedrag = False
     drag_time_thres = 0.01
-    PANBUTTON = 3  #middle mouse button
+    PANBUTTON = 3  #right click
     ZOOMINBUTTON = 4  #scroll up
     ZOOMOUTBUTTON = 5  #scroll down
     SELECTBUTTON = 1  #left click
-    MULTIPLESELECTASSERT = 2  #right click
+    MULTIPLESELECTASSERT = 3  #right click
 
 
 from pygame.constants import K_n, K_w, K_p, K_o

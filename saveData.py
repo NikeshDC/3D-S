@@ -3,7 +3,7 @@ from pygame import Vector2, surface
 from graphics_utility import Model, StandardModels, Surface, Vertex
 from D3_utility import Camera
 
-model_path = "./3d_s/"
+model_path = "./Models/"
 
 
 def split(NStri, separator=",", type=float):

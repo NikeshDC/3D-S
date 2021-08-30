@@ -462,10 +462,10 @@ class Model:
 
     def translate_surfaces(self, surfaces, t, camera):
         a, b, c, d = surfaces[0].a, surfaces[0].b, surfaces[0].c, surfaces[0].d
-        for surface in surfaces:
-            if surface.a != a or surface.b != b or surface.c != c or surface.d != d:
-                print("surfaces not lying in plane")
-                return
+        # for surface in surfaces:
+        #     if surface.a != a or surface.b != b or surface.c != c or surface.d != d:
+        #         print("surfaces not lying in plane")
+        #         return
         for surface in surfaces:
             for vertex in surface.vertices:
                 if not vertex.transformed:
